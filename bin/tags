@@ -1,0 +1,221 @@
+#! /usr/bin/env ruby
+
+if $stdout.tty?
+  TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}".freeze
+  TPUT_KEY = `tput setaf 4`.freeze
+  TPUT_CLEAR = "#{`tput op`}#{`tput sgr0`}".freeze
+else
+  TPUT_PRIMARY = ''.freeze
+  TPUT_KEY = ''.freeze
+  TPUT_CLEAR = ''.freeze
+end
+
+class Tag < Struct.new(:name, :filename, :pattern, :extra)
+  def initialize(*args)
+    super
+  end
+
+  def line_numbers
+    # TODO: if multiple lines, find class and search for the line
+    i = 0
+    @line_numbers ||= File.open(filename, 'r:iso-8859-1').each_line.reduce([]) do |m, line|
+      i += 1
+      line.delete("\n\r") == pattern ? m << i : m
+    end
+  end
+
+  def <=>(other)
+    return -1 if kind == 'p'
+    return 1 if other.kind == 'p'
+    0
+  end
+
+  def kind
+    extra[:kind]
+  end
+
+  def signature
+    @signature ||= extra.fetch(:signature, '').tap do |sig|
+      sig.tr!("\t", ' ')
+      sig.gsub!(/ *, */, ', ')
+      sig.gsub!(/  /, ' ')
+      sig.gsub!(/ *\( */, '(')
+      sig.gsub!(/ *\) */, ')')
+      sig.gsub!(/\)const */, ') const')
+      sig.gsub!(/ *= */, '=')
+      sig.gsub!(/ *& */, '& ')
+      sig.gsub!(/ *\* */, '* ')
+      sig.gsub!(/ *< */, '<')
+      sig.gsub!(/ *> */, '>')
+      # sig.gsub!(/<.* .*>)
+    end
+  end
+
+  def simple_signature
+    signature.dup.tap do |sig|
+      sig.gsub!(/=[^,)]*/, '')
+      sig.gsub!(/(const-[^ ]+) [^ ]+[,)]/, '\1,')
+      sig.gsub!(/([^ ]+) [^ ]+[,)]/, '\1,')
+      sig.gsub!(/([^ ,)]+) [,)]/, '\1,')
+    end
+  end
+
+  def pretty
+    rest = %i[class access kind]
+      .select{ |k| extra[k] && !extra[k].empty?}
+      .map{ |k| " #{TPUT_KEY}#{k}:#{TPUT_CLEAR} #{extra[k]}"}
+    ([
+      "#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{signature}",
+      " #{filename}:#{line_numbers.map(&:to_s).join(' ')}"
+    ] + rest).join("\n")
+  end
+
+  def self.parse(base_dir, line)
+    base, extra = line.split('/;"')
+    name, filename, pattern = base.split("\t", 3)
+    pattern = pattern[2..-2].freeze
+    _, kind, *rest = extra.chomp.split("\t")
+    extra = Hash[rest.map do |x|
+      k, v = x.split(':', 2)
+      [k.to_sym, v]
+    end]
+    new(name, File.join(base_dir, filename), pattern, kind: kind, **extra)
+  rescue
+    p line
+    raise
+  end
+end
+
+module Tags
+  def self.all
+    @tags ||= Hash.new{ |h, k| h[k] = [] }
+  end
+
+  def self.add(tag)
+    all["#{tag.extra[:class]}::#{tag.name}#{tag.simple_signature}"] << tag
+  end
+
+  def self.find_best_signature(tags)
+    tags.map(&:signature).max_by(&:size)
+  end
+
+  def self.sort
+    all.values.each(&:sort!)
+    @tags = Hash[all.sort_by{ |_, tags| [tags[0].class, tags[0].line_numbers[0] || 0] }]
+  end
+
+  def self.pretty_print
+    all.values.each do |tags|
+      tag = tags[0]
+      name = tag.name.sub(/^#{tag.extra[:class]}::/, '')
+      puts("#{TPUT_KEY}#{tag.extra[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
+      tags.each do |t|
+        puts(" #{TPUT_KEY}#{t.extra[:kind]}#{TPUT_CLEAR} #{t.filename}:#{t.line_numbers.join(' ')}")
+      end
+      puts
+    end
+  end
+end
+
+Args = Struct.new(
+  :outline,
+  :re,
+  :ignore_case,
+  :classes,
+  :file_patterns,
+  :tag,
+  :tagfile
+) do
+  def self.usage
+    <<~ø
+      #{$PROGRAM_NAME} [OPTIONS] TAG [TAGFILE]
+
+        --outline                            -- show the contents of a class
+        -E                                   -- use regular expressions as TAG
+        -I                                   -- case sensitive
+        -c, --class [CLASS_RE_PATTERN]       -- shrink the output by class name
+        -f, --file-pattern [FILE_RE_PATTERN] -- shrink the output by file
+    ø
+  end
+
+  def self.usage_and_exit(exit_code = 0)
+    puts usage
+    exit(exit_code)
+  end
+
+  def self.parse(args)
+    usage_and_exit if args.delete('-h') || args.delete('--help')
+    ignore_case = !args.delete('-I')
+    new(
+      !!args.delete('--outline'),
+      !!args.delete('-E'),
+      ignore_case,
+      parse_arg('-c', '--class', args),
+      parse_arg('-f', '--file-pattern', args),
+      (ignore_case ? args[0].downcase : args[0]).freeze,
+      args[1] || find_tagfile
+    )
+  end
+
+  def self.parse_arg(*names, args)
+    result = []
+    names.each do |name|
+      while (i = args.index(name))
+        args.delete_at(i)
+        result << args.delete_at(i)
+      end
+    end
+    result.compact
+  end
+
+  def self.find_tagfile
+    dir = Dir.pwd
+    until File.file?("#{dir}/tags")
+      return nil if File.dirname(dir) == dir
+      dir = File.dirname(dir)
+    end
+    "#{dir}/tags"
+  end
+
+  def search
+    @search ||= re ? /#{tag}/.freeze : "#{tag}\t".freeze
+  end
+
+  def base_dir
+    File.dirname(tagfile || '')
+  end
+
+  def check(tag_line)
+    tag_line = tag_line.downcase if ignore_case
+    return search.match?(tag_line) if re
+    tag_line.start_with?(search)
+  end
+end
+
+def check_patterns(str, patterns)
+  return true if patterns.empty?
+  patterns.any?{ |pattern| /#{pattern}/.match?(str) }
+end
+
+def main(args)
+  args = Args.parse(args)
+  file = args.tagfile.nil? || args.tagfile == '-' ? $stdin : File.open(args.tagfile, 'r:iso-8859-1')
+  file.each_line do |line|
+    next if line.start_with?('!_TAG_')
+    if args.outline
+      tag = Tag.parse(args.base_dir, line)
+      Tags.add(tag) if (tag.kind == 'c' && tag.name == args.tag) || tag.extra[:class] == args.tag
+    else
+      next unless args.check(line)
+      tag = Tag.parse(args.base_dir, line)
+      next unless check_patterns(tag.filename, args.file_patterns)
+      next unless check_patterns(tag.extra[:class], args.classes)
+      Tags.add(tag)
+    end
+  end
+  exit(1) if Tags.all.empty?
+  Tags.sort
+  Tags.pretty_print
+end
+
+main(ARGV) if __FILE__ == $PROGRAM_NAME
