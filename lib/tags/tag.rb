@@ -3,6 +3,10 @@ class Tag < Struct.new(:name, :filename, :pattern, :extra)
     super
   end
 
+  def indentifier
+    "#{extra[:class]}::#{name}#{simple_signature}"
+  end
+
   def line_numbers
     # TODO: if multiple lines, find class and search for the line
     i = 0

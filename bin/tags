@@ -17,7 +17,7 @@ module Tags
   end
 
   def self.add(tag)
-    all["#{tag.extra[:class]}::#{tag.name}#{tag.simple_signature}"] << tag
+    all[tag.indentifier] << tag
   end
 
   def self.find_best_signature(tags)
