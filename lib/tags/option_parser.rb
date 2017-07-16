@@ -1,4 +1,7 @@
 module OptionParser
+  class Error < StandardError
+  end
+
   def define_options(&block)
     @block = block
   end
@@ -8,6 +11,9 @@ module OptionParser
     parser = Parser.new(args)
     parser.instance_exec(&@block)
     new(parser.parsed)
+  rescue Error => e
+    $stderr.puts(e)
+    usage(1)
   end
 
   def usage(exit_code = 0)
@@ -27,7 +33,7 @@ module OptionParser
 
     def pos(name, _type = nil, optional: false)
       @parsed[name] = @args.delete_at(0)
-      raise "missing argument - #{name}" if !optional && @parsed[name].nil?
+      raise Error, "missing argument - #{name}" if !optional && @parsed[name].nil?
     end
 
     def opt(short_option = nil, name, _help)
