@@ -1,4 +1,5 @@
 #! /usr/bin/env ruby
+require_relative '../lib/tags'
 
 if $stdout.tty?
   TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}".freeze
@@ -117,99 +118,24 @@ module Tags
   end
 end
 
-Args = Struct.new(
-  :outline,
-  :re,
-  :ignore_case,
-  :classes,
-  :file_patterns,
-  :tag,
-  :tagfile
-) do
-  def self.usage
-    <<~ø
-      #{$PROGRAM_NAME} [OPTIONS] TAG [TAGFILE]
-
-        --outline                            -- show the contents of a class
-        -E                                   -- use regular expressions as TAG
-        -I                                   -- case sensitive
-        -c, --class [CLASS_RE_PATTERN]       -- shrink the output by class name
-        -f, --file-pattern [FILE_RE_PATTERN] -- shrink the output by file
-    ø
-  end
-
-  def self.usage_and_exit(exit_code = 0)
-    puts usage
-    exit(exit_code)
-  end
-
-  def self.parse(args)
-    usage_and_exit if args.delete('-h') || args.delete('--help')
-    ignore_case = !args.delete('-I')
-    new(
-      !!args.delete('--outline'),
-      !!args.delete('-E'),
-      ignore_case,
-      parse_arg('-c', '--class', args),
-      parse_arg('-f', '--file-pattern', args),
-      (ignore_case ? args[0].downcase : args[0]).freeze,
-      args[1] || find_tagfile
-    )
-  end
-
-  def self.parse_arg(*names, args)
-    result = []
-    names.each do |name|
-      while (i = args.index(name))
-        args.delete_at(i)
-        result << args.delete_at(i)
-      end
-    end
-    result.compact
-  end
-
-  def self.find_tagfile
-    dir = Dir.pwd
-    until File.file?("#{dir}/tags")
-      return nil if File.dirname(dir) == dir
-      dir = File.dirname(dir)
-    end
-    "#{dir}/tags"
-  end
-
-  def search
-    @search ||= re ? /#{tag}/.freeze : "#{tag}\t".freeze
-  end
-
-  def base_dir
-    File.dirname(tagfile || '')
-  end
-
-  def check(tag_line)
-    tag_line = tag_line.downcase if ignore_case
-    return search.match?(tag_line) if re
-    tag_line.start_with?(search)
-  end
-end
-
 def check_patterns(str, patterns)
   return true if patterns.empty?
   patterns.any?{ |pattern| /#{pattern}/.match?(str) }
 end
 
 def main(args)
-  args = Args.parse(args)
-  file = args.tagfile.nil? || args.tagfile == '-' ? $stdin : File.open(args.tagfile, 'r:iso-8859-1')
-  file.each_line do |line|
+  config = Config.parse(args)
+  matcher = config.matcher
+  config.open_tagfile.each_line do |line|
     next if line.start_with?('!_TAG_')
-    if args.outline
-      tag = Tag.parse(args.base_dir, line)
-      Tags.add(tag) if (tag.kind == 'c' && tag.name == args.tag) || tag.extra[:class] == args.tag
+    if config.outline
+      tag = Tag.parse(config.base_dir, line)
+      Tags.add(tag) if (tag.kind == 'c' && tag.name == config.tag) || tag.extra[:class] == config.tag
     else
-      next unless args.check(line)
-      tag = Tag.parse(args.base_dir, line)
-      next unless check_patterns(tag.filename, args.file_patterns)
-      next unless check_patterns(tag.extra[:class], args.classes)
+      next unless matcher.match?(line)
+      tag = Tag.parse(config.base_dir, line)
+      next unless check_patterns(tag.filename, config.file_patterns)
+      next unless check_patterns(tag.extra[:class], config.classes)
       Tags.add(tag)
     end
   end
