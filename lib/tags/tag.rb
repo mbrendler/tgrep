@@ -1,6 +1,9 @@
 class Tag
   attr_reader :name, :filename, :pattern, :kind, :extra
 
+  # see `ctags --list-kinds`:
+  KIND_ORDER = 'ncsugtdpfemvxl'.chars.freeze
+
   def initialize(name, filename, pattern, kind, extra)
     @name = name
     @filename = filename
@@ -23,9 +26,7 @@ class Tag
   end
 
   def <=>(other)
-    return -1 if kind == 'p'
-    return 1 if other.kind == 'p'
-    0
+    KIND_ORDER.index(kind) - KIND_ORDER.index(other.kind)
   end
 
   def signature
