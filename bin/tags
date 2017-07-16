@@ -35,7 +35,7 @@ module Tags
       name = tag.name.sub(/^#{tag.extra[:class]}::/, '')
       puts("#{TPUT_KEY}#{tag.extra[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
       tags.each do |t|
-        puts(" #{TPUT_KEY}#{t.extra[:kind]}#{TPUT_CLEAR} #{t.filename}:#{t.line_numbers.join(' ')}")
+        puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{t.filename}:#{t.line_numbers.join(' ')}")
       end
       puts
     end
