@@ -11,8 +11,8 @@ class Config
 
   define_options do
     opt(:outline, 'show the contents of a class')
-    opt('E', :re, 'use regular expressions as TAG')
-    opt('I', :case_sensitive, 'case sensitive')
+    opt('Q', :literal, 'match TAG literally')
+    opt('s', :case_sensitive, 'case sensitive')
     arg(
       'c', :class, 'CLASS_RE_PATTERN', 'shrink the output by class name',
       name: :classes
@@ -63,8 +63,11 @@ class Config
   end
 
   def matcher
-    return /#{tag}/ if re
-    return TagNameCaseSensitiveCompare.new("#{tag}\t".freeze) if case_sensitive
-    TagNameCaseInSensitiveCompare.new("#{tag.downcase}\t".freeze)
+    if literal
+      return TagNameCaseSensitiveCompare.new(tag) if case_sensitive
+      return TagNameCaseInSensitiveCompare.new(tag.downcase)
+    end
+    re = tag[-1] == '$' ? "#{tag[0...-1]}\t" : "#{tag}[^\t]*\t"
+    Regexp.new(re, case_sensitive ? 0 : Regexp::IGNORECASE)
   end
 end
