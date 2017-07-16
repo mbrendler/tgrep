@@ -1,6 +1,12 @@
-class Tag < Struct.new(:name, :filename, :pattern, :extra)
-  def initialize(*args)
-    super
+class Tag
+  attr_reader :name, :filename, :pattern, :kind, :extra
+
+  def initialize(name, filename, pattern, kind, extra)
+    @name = name
+    @filename = filename
+    @pattern = pattern
+    @kind = kind
+    @extra = extra
   end
 
   def indentifier
@@ -20,10 +26,6 @@ class Tag < Struct.new(:name, :filename, :pattern, :extra)
     return -1 if kind == 'p'
     return 1 if other.kind == 'p'
     0
-  end
-
-  def kind
-    extra[:kind]
   end
 
   def signature
@@ -57,13 +59,13 @@ class Tag < Struct.new(:name, :filename, :pattern, :extra)
     name, filename, pattern = base.split("\t", 3)
     pattern = pattern[2..-2].freeze
     _, kind, *rest = extra.chomp.split("\t")
-    extra = Hash[rest.map do |x|
+    new(name, File.join(base_dir, filename), pattern, kind, parse_extra(rest))
+  end
+
+  def self.parse_extra(strs)
+    Hash[strs.map do |x|
       k, v = x.split(':', 2)
       [k.to_sym, v]
     end]
-    new(name, File.join(base_dir, filename), pattern, kind: kind, **extra)
-  rescue
-    p line
-    raise
   end
 end
