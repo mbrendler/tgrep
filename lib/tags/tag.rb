@@ -1,3 +1,5 @@
+require_relative 'line_numbers'
+
 class Tag
   attr_reader :name, :filename, :pattern, :kind, :extra
 
@@ -10,19 +12,25 @@ class Tag
     @pattern = pattern
     @kind = kind
     @extra = extra
+    LineNumbers.add_tag(self)
   end
 
   def indentifier
-    "#{extra[:class]}::#{name}#{simple_signature}"
+    "#{class_name}::#{name}#{simple_signature}"
+  end
+
+  def class_name
+    extra[:class]
+  end
+
+  def add_line_number(nr)
+    (@line_numbers ||= []) << nr
   end
 
   def line_numbers
-    # TODO: if multiple lines, find class and search for the line
-    i = 0
-    @line_numbers ||= File.open(filename, 'r:iso-8859-1').each_line.reduce([]) do |m, line|
-      i += 1
-      line.delete("\n\r") == pattern ? m << i : m
-    end
+    return @line_numbers if instance_variable_defined?(:@line_numbers)
+    LineNumbers.find_line_numbers(filename)
+    @line_numbers ||= []
   end
 
   def <=>(other)
