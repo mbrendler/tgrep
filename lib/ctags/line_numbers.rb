@@ -1,12 +1,14 @@
+require 'set'
+
 module LineNumbers
   RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9]+)[^;]*$/
 
   def self.add_tag(tag)
-    (@tags ||= Hash.new{ |h, k| h[k] = [] })[tag.filename] << tag
+    (@tags ||= Hash.new{ |h, k| h[k] = Set.new })[tag.filename] << tag
   end
 
   def self.find_line_numbers(filename)
-    class_name = nil
+    class_name = ''
     line_numbers = Hash.new{ |h, k| h[k] = [] }
     File.open(filename, 'r:iso-8859-1').each_line.with_index(1) do |line, i|
       class_name = line[RE_CLASS_NAME, 2] || class_name
