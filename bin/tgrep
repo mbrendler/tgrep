@@ -42,32 +42,34 @@ module Tags
   end
 end
 
-def check_patterns(str, patterns)
-  return true if patterns.empty?
-  patterns.any?{ |pattern| /#{pattern}/.match?(str) }
-end
-
-def main(args)
-  config = Config.parse(args)
-  matcher = config.matcher
-  config.open_tagfile.each_line do |line|
-    next if line.start_with?('!_TAG_')
-    if config.outline
-      tag = Tag.parse(config.base_dir, line)
-      next if tag.kind != 'c' || tag.name != config.tag
-      next if tag.extra[:class] != config.tag
-    else
-      next unless matcher.match?(line)
-      tag = Tag.parse(config.base_dir, line)
-      next unless check_patterns(tag.filename, config.file_patterns)
-      next unless check_patterns(tag.extra[:class], config.classes)
+module Ctags
+  def self.main(args)
+    config = Config.parse(args)
+    matcher = config.matcher
+    config.open_tagfile.each_line do |line|
+      next if line.start_with?('!_TAG_')
+      if config.outline
+        tag = Tag.parse(config.base_dir, line)
+        next if tag.kind != 'c' || tag.name != config.tag
+        next if tag.extra[:class] != config.tag
+      else
+        next unless matcher.match?(line)
+        tag = Tag.parse(config.base_dir, line)
+        next unless check_patterns(tag.filename, config.file_patterns)
+        next unless check_patterns(tag.extra[:class], config.classes)
+      end
+      Tags.add(tag)
+      LineNumbers.add_tag(tag)
     end
-    Tags.add(tag)
-    LineNumbers.add_tag(tag)
+    exit(1) if Tags.all.empty?
+    Tags.sort
+    Tags.pretty_print
   end
-  exit(1) if Tags.all.empty?
-  Tags.sort
-  Tags.pretty_print
+
+  def self.check_patterns(str, patterns)
+    return true if patterns.empty?
+    patterns.any?{ |pattern| /#{pattern}/.match?(str) }
+  end
 end
 
-main(ARGV) if __FILE__ == $PROGRAM_NAME
+Ctags.main(ARGV) if $PROGRAM_NAME == __FILE__

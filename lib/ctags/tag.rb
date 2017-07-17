@@ -50,6 +50,7 @@ class Tag
       sig.gsub!(/ *< */, '<')
       sig.gsub!(/ *> */, '>')
       # sig.gsub!(/<.* .*>)
+      sig.sub!('(void)', '()')
     end
   end
 
