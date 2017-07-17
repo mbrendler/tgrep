@@ -24,9 +24,11 @@ module Tags
     tags.map(&:signature).max_by(&:size)
   end
 
-  def self.sort
+  def self.sort!
     all.values.each(&:sort!)
-    @tags = Hash[all.sort_by{ |_, tags| [tags[0].class, tags[0].line_numbers[0] || 0] }]
+    @tags = Hash[all.sort_by do |_, tags|
+      [tags[0].class_name || '', tags[0].line_numbers[0] || 0]
+    end]
   end
 
   def self.pretty_print
@@ -50,19 +52,18 @@ module Ctags
       next if line.start_with?('!_TAG_')
       if config.outline
         tag = Tag.parse(config.base_dir, line)
-        next if tag.kind != 'c' || tag.name != config.tag
-        next if tag.extra[:class] != config.tag
+        next if tag.class_name != config.tag
       else
         next unless matcher.match?(line)
         tag = Tag.parse(config.base_dir, line)
         next unless check_patterns(tag.filename, config.file_patterns)
-        next unless check_patterns(tag.extra[:class], config.classes)
+        next unless check_patterns(tag.class_name, config.classes)
       end
       Tags.add(tag)
       LineNumbers.add_tag(tag)
     end
     exit(1) if Tags.all.empty?
-    Tags.sort
+    Tags.sort!
     Tags.pretty_print
   end
 
