@@ -54,14 +54,16 @@ def main(args)
     next if line.start_with?('!_TAG_')
     if config.outline
       tag = Tag.parse(config.base_dir, line)
-      Tags.add(tag) if (tag.kind == 'c' && tag.name == config.tag) || tag.extra[:class] == config.tag
+      next if tag.kind != 'c' || tag.name != config.tag
+      next if tag.extra[:class] != config.tag
     else
       next unless matcher.match?(line)
       tag = Tag.parse(config.base_dir, line)
       next unless check_patterns(tag.filename, config.file_patterns)
       next unless check_patterns(tag.extra[:class], config.classes)
-      Tags.add(tag)
     end
+    Tags.add(tag)
+    LineNumbers.add_tag(tag)
   end
   exit(1) if Tags.all.empty?
   Tags.sort

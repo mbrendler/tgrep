@@ -12,7 +12,6 @@ class Tag
     @pattern = pattern
     @kind = kind
     @extra = extra
-    LineNumbers.add_tag(self)
   end
 
   def indentifier
