@@ -12,18 +12,17 @@ module LineNumbers
       class_name = line[RE_CLASS_NAME, 2] || class_name
       @tags[filename].each do |tag|
         next if line.delete("\n\r") != tag.pattern
-        # next if class_name && tag.class_name && !tag.class_name.end_with?(class_name)
         line_numbers[tag] << [class_name, i]
       end
     end
+    forward_line_numbers_to_tags(line_numbers)
+  end
+
+  def self.forward_line_numbers_to_tags(line_numbers)
     line_numbers.each do |tag, nrs|
       next if nrs.empty?
-      if nrs.size == 1
-        tag.add_line_number(nrs[0][1])
-        next
-      end
       if tag.class_name
-        nrs1 = nrs.find_all{ |(class_name, _)| tag.class_name.end_with?(class_name) }
+        nrs1 = nrs.find_all{ |klass, _| tag.class_name.end_with?(klass) }
         nrs = nrs1 unless nrs1.empty?
       end
       nrs.each{ |_, nr| tag.add_line_number(nr) }
