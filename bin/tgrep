@@ -1,5 +1,5 @@
 #! /usr/bin/env ruby
-require_relative '../lib/tags'
+require_relative '../lib/ctags'
 
 if $stdout.tty?
   TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}".freeze
