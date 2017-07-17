@@ -19,7 +19,8 @@ class Tag
   end
 
   def class_name
-    extra[:class]
+    class_name = extra[:class] || (kind == 'c' ? name : nil)
+    extra[:namespace] ? "#{extra[:namespace]}::#{class_name}" : class_name
   end
 
   def add_line_number(nr)
