@@ -5,11 +5,6 @@ class Config
   extend OptionParser
 
   define_options do
-    opt(:he_he, 'help of he-he')
-    arg('s', :ha_ha, 'TYPE', 'help of ha-ha')
-  end
-
-  define_options do
     opt(:outline, 'show the contents of a class')
     opt('Q', :literal, 'match TAG literally')
     opt('s', :case_sensitive, 'case sensitive')
