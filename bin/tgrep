@@ -31,13 +31,14 @@ module Tags
     end]
   end
 
-  def self.pretty_print
+  def self.pretty_print(config)
     all.values.each do |tags|
       tag = tags[0]
       name = tag.name.sub(/^#{tag.extra[:class]}::/, '')
       puts("#{TPUT_KEY}#{tag.extra[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
       tags.each do |t|
-        puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{t.filename}:#{t.line_numbers.join(' ')}")
+        filename = config.full_path ? t.absolute_filename : t.filename
+        puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{filename}:#{t.line_numbers.join(' ')}")
       end
       puts
     end
@@ -64,7 +65,7 @@ module Ctags
     end
     exit(1) if Tags.all.empty?
     Tags.sort!
-    Tags.pretty_print
+    Tags.pretty_print(config)
   end
 
   def self.check_patterns(str, patterns)

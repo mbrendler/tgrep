@@ -4,7 +4,7 @@ module LineNumbers
   RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9]+)[^;]*$/
 
   def self.add_tag(tag)
-    (@tags ||= Hash.new{ |h, k| h[k] = Set.new })[tag.filename] << tag
+    (@tags ||= Hash.new{ |h, k| h[k] = Set.new })[tag.absolute_filename] << tag
   end
 
   def self.find_line_numbers(filename)

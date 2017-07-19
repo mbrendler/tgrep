@@ -6,11 +6,12 @@ class Tag
   # see `ctags --list-kinds`:
   KIND_ORDER = 'ncsugtdpfemvxl'.chars.freeze
 
-  def initialize(name, filename, pattern, kind, extra)
+  def initialize(name, filename, pattern, kind, base_dir, extra)
     @name = name
     @filename = filename
     @pattern = pattern
     @kind = kind
+    @base_dir = base_dir
     @extra = extra
   end
 
@@ -27,9 +28,14 @@ class Tag
     (@line_numbers ||= []) << nr
   end
 
+  def absolute_filename
+    File.join(@base_dir, filename)
+  end
+
   def line_numbers
     return @line_numbers if instance_variable_defined?(:@line_numbers)
-    LineNumbers.find_line_numbers(filename)
+    puts absolute_filename
+    LineNumbers.find_line_numbers(absolute_filename)
     @line_numbers ||= []
   end
 
@@ -69,7 +75,7 @@ class Tag
     name, filename, pattern = base.split("\t", 3)
     pattern = pattern[2..-2].freeze
     _, kind, *rest = extra.chomp.split("\t")
-    new(name, File.join(base_dir, filename), pattern, kind, parse_extra(rest))
+    new(name, filename, pattern, kind, base_dir, parse_extra(rest))
   end
 
   def self.parse_extra(strs)

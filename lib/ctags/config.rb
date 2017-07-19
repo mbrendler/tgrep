@@ -5,9 +5,10 @@ class Config
   extend OptionParser
 
   define_options do
-    opt(:outline, 'show the contents of a class')
     opt('Q', :literal, 'match TAG literally')
     opt('s', :case_sensitive, 'case sensitive')
+    opt(:full_path, 'show full path')
+    opt(:outline, 'show the contents of a class')
     arg(
       'c', :class, 'CLASS_RE_PATTERN', 'shrink the output by class name',
       name: :classes
