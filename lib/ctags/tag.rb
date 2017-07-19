@@ -34,7 +34,6 @@ class Tag
 
   def line_numbers
     return @line_numbers if instance_variable_defined?(:@line_numbers)
-    puts absolute_filename
     LineNumbers.find_line_numbers(absolute_filename)
     @line_numbers ||= []
   end
