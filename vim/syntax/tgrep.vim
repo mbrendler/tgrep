@@ -6,7 +6,7 @@ endif
 
 syntax match TgrepComment ' \/\/.*$'
 syntax match TgrepFunction '::\([^:( ]*\)'
-syntax match TgrepSignature '(.*$'
+syntax match TgrepSignature '([^)]*)'
 syntax match TgrepKind '^ .\>'
 " syntax match TgrepFile ' .*:'
 syntax match TgrepLineNumber '\d*$'
