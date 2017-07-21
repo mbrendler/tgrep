@@ -35,8 +35,8 @@ module Tags
   def self.pretty_print(config)
     all.values.each do |tags|
       tag = tags[0]
-      name = tag.name.sub(/^#{tag.extra[:class]}::/, '')
-      puts("#{TPUT_KEY}#{tag.extra[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
+      name = tag.name.sub(/^#{tag.data[:class]}::/, '')
+      puts("#{TPUT_KEY}#{tag.data[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
       tags.each do |t|
         filename = config.full_path ? t.absolute_filename : t.filename
         puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{filename}:#{t.line_numbers.join(' ')}")
@@ -53,14 +53,15 @@ module Tgrep
     config.open_tagfile.each_line do |line|
       next if line.start_with?('!_TAG_')
       if config.outline
-        tag = Tag.parse(config.base_dir, line)
-        next if tag.class_name != config.tag
+        tag_hash = Tag.parse(line)
+        next if Tag.class_name(tag_hash) != config.tag
       else
         next unless matcher.match?(line)
-        tag = Tag.parse(config.base_dir, line)
-        next unless check_patterns(tag.filename, config.file_patterns)
-        next unless check_patterns(tag.class_name, config.classes)
+        tag_hash = Tag.parse(line)
+        next unless check_patterns(tag_hash[:filename], config.file_patterns)
+        next unless check_patterns(Tag.class_name(tag_hash), config.classes)
       end
+      tag = Tag.new(tag_hash, config.base_dir)
       Tags.add(tag)
       LineNumbers.add_tag(tag)
     end

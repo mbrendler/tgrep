@@ -1,18 +1,17 @@
 require_relative 'line_numbers'
 
 class Tag
-  attr_reader :name, :filename, :pattern, :kind, :extra
-
   # see `ctags --list-kinds`:
   KIND_ORDER = 'ncsugtdpfemvxl'.chars.freeze
+  attr_reader :data
 
-  def initialize(name, filename, pattern, kind, base_dir, extra)
-    @name = name
-    @filename = filename
-    @pattern = pattern
-    @kind = kind
+  def initialize(data, base_dir)
+    @data = data
     @base_dir = base_dir
-    @extra = extra
+  end
+
+  %i[name filename pattern kind].each do |name|
+    define_method(name){ @data[name] }
   end
 
   def identifier
@@ -21,8 +20,7 @@ class Tag
   end
 
   def class_name
-    class_name = extra[:class] || extra[:enum] || extra[:typeref] || (kind == 'c' ? name : nil)
-    extra[:namespace] ? "#{extra[:namespace]}::#{class_name}" : class_name
+    self.class.class_name(@data)
   end
 
   def add_line_number(nr)
@@ -54,7 +52,7 @@ class Tag
   end
 
   def signature
-    @signature ||= extra.fetch(:signature, '').tap do |sig|
+    @signature ||= data.fetch(:signature, '').tap do |sig|
       sig.tr!("\t", ' ')
       sig.gsub!(/ *, */, ', ')
       sig.gsub!(/  /, ' ')
@@ -80,18 +78,24 @@ class Tag
     end
   end
 
-  def self.parse(base_dir, line)
+  def self.parse(line)
     base, extra = line.split('/;"')
     name, filename, pattern = base.split("\t", 3)
-    pattern = pattern[2..-2].freeze
     _, kind, *rest = extra.chomp.split("\t")
-    new(name, filename, pattern, kind, base_dir, parse_extra(rest))
+    data = {name: name, filename: filename, pattern: pattern, kind: kind}
+    add_extra(data, rest)
   end
 
-  def self.parse_extra(strs)
-    Hash[strs.map do |x|
+  def self.add_extra(data, extra_strs)
+    extra_strs.each do |x|
       k, v = x.split(':', 2)
-      [k.to_sym, v]
-    end]
+      data[k.to_sym] = v
+    end
+    data
+  end
+
+  def self.class_name(data)
+    class_name = data[:class] || data[:enum] || data[:typeref] || (data[:kind] == 'c' ? data[:name] : nil)
+    data[:namespace] ? "#{data[:namespace]}::#{class_name}" : class_name
   end
 end
