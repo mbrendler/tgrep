@@ -10,8 +10,12 @@ class Tag
     @base_dir = base_dir
   end
 
-  %i[name filename pattern kind].each do |name|
+  %i[name filename kind].each do |name|
     define_method(name){ @data[name] }
+  end
+
+  def pattern
+    @pattern ||= data[:pattern][2..-2].tap{ |p| p.gsub!('\\/', '/') }
   end
 
   def identifier
