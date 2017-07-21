@@ -39,7 +39,9 @@ class Tag
   end
 
   def <=>(other)
-    KIND_ORDER.index(kind) - KIND_ORDER.index(other.kind)
+    kind_cmp = KIND_ORDER.index(kind) - KIND_ORDER.index(other.kind)
+    return kind_cmp unless kind_cmp.zero?
+    (line_numbers[0] || 0).to_i - (other.line_numbers[0] || 0).to_i
   end
 
   def code
