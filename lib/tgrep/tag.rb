@@ -15,7 +15,7 @@ class Tag
     @extra = extra
   end
 
-  def indentifier
+  def identifier
     "#{class_name}::#{name}#{simple_signature}"
   end
 
