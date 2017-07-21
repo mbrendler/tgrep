@@ -16,6 +16,7 @@ class Tag
   end
 
   def identifier
+    return "#{name}#{simple_signature}" if name.start_with?(class_name)
     "#{class_name}::#{name}#{simple_signature}"
   end
 
