@@ -23,8 +23,7 @@ module Tags
   end
 
   def self.find_best_signature(tags)
-    sig = tags.map(&:signature).max_by(&:size)
-    sig.empty? ? " // #{tags[0].code}" : sig
+    tags.map(&:signature).max_by(&:size)
   end
 
   def self.sort!
@@ -38,7 +37,7 @@ module Tags
     all.values.each do |tags|
       tag = tags[0]
       name = tag.name.sub(/^#{tag.data[:class]}::/, '')
-      puts("#{TPUT_KEY}#{tag.data[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)}")
+      puts("#{TPUT_KEY}#{tag.data[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)} // #{tags[0].code}")
       tags.each do |t|
         filename = config.full_path ? t.absolute_filename : t.filename
         puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{filename}:#{t.line_numbers.join(' ')}")
