@@ -99,7 +99,9 @@ class Tag
   end
 
   def self.class_name(data)
-    class_name = data[:class] || data[:enum] || data[:typeref] || (data[:kind] == 'c' ? data[:name] : nil)
-    data[:namespace] ? "#{data[:namespace]}::#{class_name}" : class_name
+    data[:class_name] ||= begin
+      class_name = data[:class] || data[:enum] || data[:typeref] || (data[:kind] == 'c' ? data[:name] : nil)
+      data[:namespace] ? "#{data[:namespace]}::#{class_name}" : class_name
+    end
   end
 end
