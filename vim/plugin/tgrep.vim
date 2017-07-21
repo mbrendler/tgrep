@@ -43,6 +43,7 @@ function! tgrep#open_window(content)
   setlocal nolist
   setlocal colorcolumn=0
   setlocal nospell
+  setlocal nowrap
   0,$delete
   put! =a:content
   setlocal nomodified
