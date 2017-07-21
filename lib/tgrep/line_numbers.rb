@@ -1,7 +1,7 @@
 require 'set'
 
 module LineNumbers
-  RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9]+)[^;]*$/
+  RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9_]+)[^;]*$/
 
   def self.add_tag(tag)
     (@tags ||= Hash.new{ |h, k| h[k] = Set.new })[tag.absolute_filename] << tag
