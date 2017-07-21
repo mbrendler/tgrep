@@ -41,6 +41,10 @@ class Config
     'iso-8859-1'
   end
 
+  def tag
+    @tag ||= args[:tag].sub(/operator\s*/, 'operator ')
+  end
+
   def tagfile
     @args[:tagfile] || find_tagfile
   end
