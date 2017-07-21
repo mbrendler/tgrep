@@ -20,7 +20,7 @@ class Tag
   end
 
   def class_name
-    class_name = extra[:class] || (kind == 'c' ? name : nil)
+    class_name = extra[:class] || extra[:enum] || extra[:typeref] || (kind == 'c' ? name : nil)
     extra[:namespace] ? "#{extra[:namespace]}::#{class_name}" : class_name
   end
 
