@@ -32,7 +32,7 @@ class Config
   end
 
   def open_tagfile
-    return $stdout if tagfile == '-'
+    return $stdin if tagfile == '-'
     open(tagfile, "r:#{encoding}")
   end
 
@@ -59,7 +59,7 @@ class Config
   end
 
   def base_dir
-    File.dirname(tagfile || '')
+    @base_dir ||= File.dirname(tagfile || '.')
   end
 
   def matcher

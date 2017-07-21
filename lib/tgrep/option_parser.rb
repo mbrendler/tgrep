@@ -38,7 +38,7 @@ module OptionParser
 
     def opt(short_option = nil, name, _help)
       @parsed[name] = !!(
-        @args.delete("-#{short_option}") ||
+        (short_option && @args.delete("-#{short_option}")) ||
         @args.delete(_long_option(name))
       )
     end
@@ -46,6 +46,7 @@ module OptionParser
     def arg(short_option = nil, long_option, _type, _help, name: "#{long_option}s")
       result = []
       ["-#{short_option}", _long_option(long_option)].each do |option|
+        next if option == '-'
         while (i = @args.index(option))
           @args.delete_at(i)
           result << @args.delete_at(i)
