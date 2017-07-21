@@ -17,7 +17,9 @@ module Tags
   end
 
   def self.add(tag)
-    all[tag.identifier] << tag
+    all[tag.identifier] << tag unless all[tag.identifier].any? do |t|
+      t.filename == tag.filename && t.pattern == tag.pattern
+    end
   end
 
   def self.find_best_signature(tags)
