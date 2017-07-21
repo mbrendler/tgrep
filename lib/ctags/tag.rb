@@ -42,6 +42,14 @@ class Tag
     KIND_ORDER.index(kind) - KIND_ORDER.index(other.kind)
   end
 
+  def code
+    @code ||= pattern.dup.tap do |code|
+      code.gsub!(/^\^?\s*/, '')
+      code.gsub!(/\s*;\s*\$?$/, '')
+      code.gsub!(/\s+/, ' ')
+    end
+  end
+
   def signature
     @signature ||= extra.fetch(:signature, '').tap do |sig|
       sig.tr!("\t", ' ')

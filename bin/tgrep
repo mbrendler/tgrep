@@ -21,7 +21,8 @@ module Tags
   end
 
   def self.find_best_signature(tags)
-    tags.map(&:signature).max_by(&:size)
+    sig = tags.map(&:signature).max_by(&:size)
+    sig.empty? ? " // #{tags[0].code}" : sig
   end
 
   def self.sort!
