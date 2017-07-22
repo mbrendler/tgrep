@@ -1,4 +1,5 @@
 require 'set'
+require_relative 'config'
 
 module LineNumbers
   RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9_]+)[^;]*$/
@@ -10,7 +11,7 @@ module LineNumbers
   def self.find_line_numbers(filename)
     class_name = ''
     line_numbers = Hash.new{ |h, k| h[k] = [] }
-    File.open(filename, 'r:iso-8859-1').each_line.with_index(1) do |line, i|
+    File.open(filename, "r:#{Config::CONFIG.encoding}").each_line.with_index(1) do |line, i|
       class_name = line[RE_CLASS_NAME, 2] || class_name
       @tags[filename].each do |tag|
         next if line.delete("\n\r") != tag.pattern

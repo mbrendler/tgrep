@@ -16,6 +16,7 @@ class Config
       name: :classes
     )
     arg('f', :file_pattern, 'FILE_RE_PATTERN', 'shrink the output by file')
+    arg(:encoding, 'ENCODING', 'encoding used to parse files (UTF-8)')
     pos(:tag)
     pos(:tagfile, optional: true)
   end
@@ -27,6 +28,7 @@ class Config
     @args.each do |key, value|
       define_singleton_method(key){ value } unless respond_to?(key)
     end
+    self.class.const_set('CONFIG', self)
   end
 
   def to_s
@@ -39,8 +41,7 @@ class Config
   end
 
   def encoding
-    # TODO
-    'iso-8859-1'
+    @encoding ||= encodings[-1] || 'utf-8'
   end
 
   def tag
