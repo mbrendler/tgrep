@@ -18,7 +18,9 @@ module OptionParser
 
   def parse(args)
     usage if args.delete('-h') || args.delete('--help')
-    new(parse_args(options_from_file + args))
+    args = ArgsNormalizer.new(options_from_file + args).normalize(&@block)
+    parsed = Parser.new(args, &@block).parsed
+    new(parsed)
   rescue Error => e
     $stderr.puts(e)
     usage(1)
@@ -29,12 +31,6 @@ module OptionParser
     File.readlines(@options_filename).map{ |l| l[0..-2] }
   end
 
-  def parse_args(args)
-    parser = Parser.new(args)
-    parser.instance_exec(&@block)
-    parser.parsed
-  end
-
   def usage(exit_code = 0)
     help = Help.new(File.basename(@options_filename))
     help.instance_exec(&@block)
@@ -43,36 +39,62 @@ module OptionParser
   end
 
   class Parser
-    attr_reader :parsed
-
-    def initialize(args)
+    def initialize(args, &block)
       @args = args
+      @offset = 0
+      @block = block
       @parsed = {}
+      @parse_state = :options
     end
 
     def pos(name, _type = nil, optional: false)
+      return if @parse_state != :positional
+      return unless @parsed[name].nil?
       @parsed[name] = @args.delete_at(0)
       return if optional || @parsed[name]
       raise Error, "missing argument - #{name}"
     end
 
     def opt(short_option = nil, name, _help)
-      @parsed[name] = !!(
-        (short_option && @args.delete("-#{short_option}")) ||
-        @args.delete(_long_option(name))
-      )
+      return if @parse_state != :options
+      options = [_long_option(name)]
+      options << "-#{short_option}" if short_option
+      if options.include?(@args[@offset])
+        @args.delete_at(@offset)
+        @parsed[name] = true
+      elsif @parsed[name].nil?
+        @parsed[name] = false
+      end
     end
 
     def arg(short_option = nil, long_option, _type, _help, name: "#{long_option}s")
-      result = []
-      ["-#{short_option}", _long_option(long_option)].each do |option|
-        next if option == '-'
-        while (i = @args.index(option))
-          @args.delete_at(i)
-          result << @args.delete_at(i)
-        end
+      return if @parse_state != :options
+      @parsed[name] ||= []
+      options = [_long_option(long_option)]
+      options << "-#{short_option}" if short_option
+      return unless options.include?(@args[@offset])
+      @args.delete_at(@offset)
+      @parsed[name] << @args[@offset]
+      @args.delete_at(@offset)
+    end
+
+    def parsed
+      return @parsed unless @parsed.empty?
+      parse
+      @parse_state = :positional
+      parse
+      @parsed
+    end
+
+    private
+
+    def parse
+      @offset = 0
+      while @offset < @args.size
+        old_size = @args.size
+        instance_exec(&@block)
+        @offset += 1 if old_size == @args.size
       end
-      @parsed[name.to_sym] = result.compact
     end
 
     def _long_option(name)
