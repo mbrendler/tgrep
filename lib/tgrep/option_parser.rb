@@ -12,7 +12,7 @@ module OptionParser
     @options_filename = File.file?(filename) ? filename : nil
   end
 
-  def define_options(&block)
+  def options(&block)
     @block = block
   end
 

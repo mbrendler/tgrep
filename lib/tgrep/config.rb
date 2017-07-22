@@ -6,7 +6,7 @@ class Config
 
   options_filename '.tgrep'
 
-  define_options do
+  options do
     opt('Q', :literal, 'match TAG literally')
     opt('s', :case_sensitive, 'case sensitive')
     opt(:full_path, 'show full path')
