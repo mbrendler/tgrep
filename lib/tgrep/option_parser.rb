@@ -117,4 +117,59 @@ module OptionParser
       puts 'This file is searched in the current directory and all its parrents.'
     end
   end
+
+  class ArgsNormalizer
+    def initialize(args)
+      @args = args
+      @offset = 0
+    end
+
+    def pos(*_); end
+
+    def opt(short_option = nil, _name, _help)
+      return if short_option.nil?
+      option = "-#{short_option}"
+      return if @args[@offset] == option
+      return unless @args[@offset].start_with?(option)
+      @args[@offset] = "-#{@args[@offset][2..-1]}"
+      @args.insert(@offset, option)
+      @offset += 1
+    end
+
+    def arg(short_option = nil, long_option, _type, _help, **_options)
+      handle_short_option_arg(short_option) unless short_option.nil?
+      handle_long_option_arg(long_option)
+    end
+
+    def normalize(&block)
+      @offset = 0
+      while @offset < @args.size
+        old_size = @args.size
+        instance_exec(&block)
+        @offset += 1 if old_size == @args.size
+      end
+      @args
+    end
+
+    private
+
+    def handle_short_option_arg(short_option)
+      option = "-#{short_option}"
+      return if @args[@offset] == option
+      return unless @args[@offset].start_with?(option)
+      @args[@offset] = @args[@offset][2..-1]
+      @args.insert(@offset, option)
+      @offset += 1
+    end
+
+    def handle_long_option_arg(long_option)
+      option = "--#{long_option}"
+      return if @args[@offset] == option
+      return unless @args[@offset].start_with?("#{option}=")
+      _, value = @args[@offset].split('=', 2)
+      @args[@offset] = value
+      @args.insert(@offset, option)
+      @offset += 1
+    end
+  end
 end
