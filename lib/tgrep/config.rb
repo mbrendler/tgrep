@@ -4,6 +4,8 @@ require_relative 'line_matchers'
 class Config
   extend OptionParser
 
+  options_filename '.tgrep'
+
   define_options do
     opt('Q', :literal, 'match TAG literally')
     opt('s', :case_sensitive, 'case sensitive')

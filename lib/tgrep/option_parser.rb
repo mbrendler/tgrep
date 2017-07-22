@@ -2,22 +2,41 @@ module OptionParser
   class Error < StandardError
   end
 
+  def options_filename(filename)
+    dir = Dir.pwd
+    until File.file?("#{dir}/#{filename}")
+      break if File.dirname(dir) == dir
+      dir = File.dirname(dir)
+    end
+    filename = "#{dir}/#{filename}"
+    @options_filename = File.file?(filename) ? filename : nil
+  end
+
   def define_options(&block)
     @block = block
   end
 
   def parse(args)
     usage if args.delete('-h') || args.delete('--help')
-    parser = Parser.new(args)
-    parser.instance_exec(&@block)
-    new(parser.parsed)
+    new(parse_args(options_from_file + args))
   rescue Error => e
     $stderr.puts(e)
     usage(1)
   end
 
+  def options_from_file
+    return [] if @options_filename.nil?
+    File.readlines(@options_filename).map{ |l| l[0..-2] }
+  end
+
+  def parse_args(args)
+    parser = Parser.new(args)
+    parser.instance_exec(&@block)
+    parser.parsed
+  end
+
   def usage(exit_code = 0)
-    help = Help.new
+    help = Help.new(File.basename(@options_filename))
     help.instance_exec(&@block)
     help.print
     exit(exit_code)
@@ -33,7 +52,8 @@ module OptionParser
 
     def pos(name, _type = nil, optional: false)
       @parsed[name] = @args.delete_at(0)
-      raise Error, "missing argument - #{name}" if !optional && @parsed[name].nil?
+      return if optional || @parsed[name]
+      raise Error, "missing argument - #{name}"
     end
 
     def opt(short_option = nil, name, _help)
@@ -61,7 +81,8 @@ module OptionParser
   end
 
   class Help
-    def initialize
+    def initialize(options_filename)
+      @options_filename = options_filename
       @positional = []
       @options = []
     end
@@ -91,6 +112,9 @@ module OptionParser
       @options.each do |option, help|
         puts("  #{option.ljust(max_left)} -- #{help}")
       end
+      puts
+      puts "All options can be written into a '#{@options_filename}'."
+      puts 'This file is searched in the current directory and all its parrents.'
     end
   end
 end
