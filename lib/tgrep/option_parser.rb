@@ -3,13 +3,7 @@ module OptionParser
   end
 
   def options_filename(filename)
-    dir = Dir.pwd
-    until File.file?("#{dir}/#{filename}")
-      break if File.dirname(dir) == dir
-      dir = File.dirname(dir)
-    end
-    filename = "#{dir}/#{filename}"
-    @options_filename = File.file?(filename) ? filename : nil
+    @options_filename = filename
   end
 
   def options(&block)
@@ -26,16 +20,29 @@ module OptionParser
     usage(1)
   end
 
+  private
+
   def options_from_file
-    return [] if @options_filename.nil?
-    File.readlines(@options_filename).map{ |l| l[0..-2] }
+    options_filename = find_options_filename
+    return [] if options_filename.nil?
+    File.readlines(options_filename).map{ |l| l[0..-2] }
   end
 
   def usage(exit_code = 0)
-    help = Help.new(File.basename(@options_filename))
+    help = Help.new(@options_filename)
     help.instance_exec(&@block)
     help.print
     exit(exit_code)
+  end
+
+  def find_options_filename
+    dir = Dir.pwd
+    until File.file?("#{dir}/#{@options_filename}")
+      break if File.dirname(dir) == dir
+      dir = File.dirname(dir)
+    end
+    filename = "#{dir}/#{@options_filename}"
+    File.file?(filename) ? filename : nil
   end
 
   class Parser
