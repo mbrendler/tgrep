@@ -21,8 +21,6 @@ class Config
     pos(:tagfile, optional: true)
   end
 
-  attr_reader :args
-
   def initialize(args)
     @args = args
     @args.each do |key, value|
@@ -45,7 +43,7 @@ class Config
   end
 
   def tag
-    @tag ||= args[:tag].sub(/operator\s*/, 'operator ')
+    @tag ||= @args[:tag].sub(/operator\s*/, 'operator ')
   end
 
   def tagfile
