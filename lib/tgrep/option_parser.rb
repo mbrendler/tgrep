@@ -75,7 +75,7 @@ module Tgrep
         end
       end
 
-      def arg(short_option = nil, long_option, _type, _help, name: "#{long_option}s")
+      def arg(short_option = nil, long_option, _type, _help, name: "#{long_option}s".to_sym)
         return if @parse_state != :options
         @parsed[name] ||= []
         options = [_long_option(long_option)]
