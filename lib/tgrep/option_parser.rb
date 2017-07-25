@@ -12,13 +12,20 @@ module Tgrep
     end
 
     def parse(args)
-      usage if args.delete('-h') || args.delete('--help')
+      return usage if args.delete('-h') || args.delete('--help')
       args = ArgsNormalizer.new(options_from_file + args).normalize(&@block)
       parsed = Parser.new(args, &@block).parsed
       new(parsed)
     rescue Error => e
-      $stderr.puts(e)
+      $stderr.puts(e.to_s)
       usage(1)
+    end
+
+    def usage(exit_code = 0, out: $stdout)
+      help = Help.new(@options_filename)
+      help.instance_exec(&@block)
+      help.print(out)
+      exit(exit_code)
     end
 
     private
@@ -27,13 +34,6 @@ module Tgrep
       options_filename = find_options_filename
       return [] if options_filename.nil?
       File.readlines(options_filename).map{ |l| l.delete("\n\r") }
-    end
-
-    def usage(exit_code = 0)
-      help = Help.new(@options_filename)
-      help.instance_exec(&@block)
-      help.print
-      exit(exit_code)
     end
 
     def find_options_filename
@@ -90,6 +90,7 @@ module Tgrep
         return @parsed unless @parsed.empty?
         parse
         @parse_state = :positional
+        instance_exec(&@block) if @args.empty?
         parse
         @parsed
       end
@@ -136,15 +137,15 @@ module Tgrep
         "-#{short_option}, #{long_option}"
       end
 
-      def print
-        puts "#{$PROGRAM_NAME} [OPTIONS] #{@positional.join(' ')}\n\n"
+      def print(out)
+        out.puts "#{$PROGRAM_NAME} [OPTIONS] #{@positional.join(' ')}\n\n"
         max_left = @options.map{ |x| x[0].size }.max
         @options.each do |option, help|
-          puts("  #{option.ljust(max_left)} -- #{help}")
+          out.puts("  #{option.ljust(max_left)} -- #{help}")
         end
-        puts
-        puts "All options can be written into a '#{@options_filename}'."
-        puts 'This file is searched in the current directory and all its parrents.'
+        out.puts
+        out.puts "All options can be written into a '#{@options_filename}'."
+        out.puts 'This file is searched in the current directory and all its parrents.'
       end
     end
 
