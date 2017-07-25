@@ -26,7 +26,7 @@ module Tgrep
     def options_from_file
       options_filename = find_options_filename
       return [] if options_filename.nil?
-      File.readlines(options_filename).map{ |l| l[0..-2] }
+      File.readlines(options_filename).map{ |l| l.delete("\n\r") }
     end
 
     def usage(exit_code = 0)
