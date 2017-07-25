@@ -193,13 +193,17 @@ module Tgrep
       end
 
       def handle_long_option_arg(long_option)
-        option = "--#{long_option}"
+        option = _long_option(long_option)
         return if @args[@offset] == option
         return unless @args[@offset].start_with?("#{option}=")
         _, value = @args[@offset].split('=', 2)
         @args[@offset] = value
         @args.insert(@offset, option)
         @offset += 1
+      end
+
+      def _long_option(name)
+        "--#{name.to_s.tr('_', '-')}"
       end
     end
   end
