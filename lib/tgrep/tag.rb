@@ -14,8 +14,27 @@ class Tag
     define_method(name){ @data[name] }
   end
 
+  def match?(line)
+    return line == pattern if start_pattern? && end_pattern?
+    return line.start_with?(pattern) if start_pattern?
+    return line.end_with?(pattern) if end_pattern?
+    line.include?(pattern)
+  end
+
+  def start_pattern?
+    @start_pattern ||= data[:pattern][1] == '^'
+  end
+
+  def end_pattern?
+    @end_pattern ||= data[:pattern][-1] == '$'
+  end
+
   def pattern
-    @pattern ||= data[:pattern][2..-2].tap{ |p| p.gsub!('\\/', '/') }
+    @pattern ||= data[:pattern][1..-1].tap do |p|
+      p.slice!(0) if p[0] == '^'
+      p.slice!(-1) if p[-1] == '$'
+      p.gsub!('\\/', '/')
+    end
   end
 
   def identifier
@@ -56,6 +75,8 @@ class Tag
       code.gsub!(/^\^?\s*/, '')
       code.gsub!(/\s*;\s*\$?$/, '')
       code.gsub!(/\s+/, ' ')
+      code.gsub!(/\(\s*/, '(')
+      code.gsub!(/\s*\)/, ')')
     end
   end
 

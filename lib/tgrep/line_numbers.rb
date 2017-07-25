@@ -13,8 +13,9 @@ module LineNumbers
     line_numbers = Hash.new{ |h, k| h[k] = [] }
     File.open(filename, "r:#{Config::CONFIG.encoding}").each_line.with_index(1) do |line, i|
       class_name = line[RE_CLASS_NAME, 2] || class_name
+      line.delete!("\n\r")
       @tags[filename].each do |tag|
-        next if line.delete("\n\r") != tag.pattern
+        next unless tag.match?(line)
         line_numbers[tag] << [class_name, i]
       end
     end
