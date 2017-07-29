@@ -11,30 +11,13 @@ else
   TPUT_CLEAR = ''.freeze
 end
 
-module Tags
-  def self.all
-    @tags ||= Hash.new{ |h, k| h[k] = [] }
-  end
-
-  def self.add(tag)
-    all[tag.identifier] << tag unless all[tag.identifier].any? do |t|
-      t.filename == tag.filename && t.pattern == tag.pattern
-    end
-  end
-
+module Printer
   def self.find_best_signature(tags)
     tags.map(&:signature).max_by(&:size)
   end
 
-  def self.sort!
-    all.values.each(&:sort!)
-    @tags = Hash[all.sort_by do |_, tags|
-      [tags[0].class_name || '', tags[0].line_numbers[0] || 0]
-    end]
-  end
-
-  def self.pretty_print(config)
-    all.values.each do |tags|
+  def self.pretty_print(all_tags, config)
+    all_tags.each do |tags|
       tag = tags[0]
       name = tag.name.sub(/^#{tag.data[:class]}::/, '')
       puts("#{TPUT_KEY}#{tag.data[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)} // #{tags[0].code}")
@@ -51,6 +34,7 @@ module Tgrep
   def self.main(args)
     config = Config.parse(args)
     matcher = config.matcher
+    tags = Tags.new
     config.open_tagfile.each_line do |line|
       next if line.start_with?('!_TAG_')
       if config.outline
@@ -63,12 +47,12 @@ module Tgrep
         next unless check_patterns(Tag.class_name(tag_hash), config.classes)
       end
       tag = Tag.new(tag_hash, config.base_dir)
-      Tags.add(tag)
+      tags.add(tag)
       LineNumbers.add_tag(tag)
     end
-    exit(1) if Tags.all.empty?
-    Tags.sort!
-    Tags.pretty_print(config)
+    exit(1) if tags.empty?
+    tags.sort!
+    Printer.pretty_print(tags, config)
   end
 
   def self.check_patterns(str, patterns)
