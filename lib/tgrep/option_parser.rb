@@ -75,11 +75,11 @@ module Tgrep
         end
       end
 
-      def arg(short_option = nil, long_option, _type, _help, name: "#{long_option}s".to_sym)
+      def arg(short = nil, long, _type, _help, name: "#{long}s".to_sym)
         return if @parse_state != :options
         @parsed[name] ||= []
-        options = [_long_option(long_option)]
-        options << "-#{short_option}" if short_option
+        options = [_long_option(long)]
+        options << "-#{short}" if short
         return unless options.include?(@args[@offset])
         @args.delete_at(@offset)
         @parsed[name] << @args[@offset]
@@ -144,8 +144,10 @@ module Tgrep
           out.puts("  #{option.ljust(max_left)} -- #{help}")
         end
         out.puts
-        out.puts "All options can be written into a '#{@options_filename}'."
-        out.puts 'This file is searched in the current directory and all its parrents.'
+        out.puts("All options can be written into a '#{@options_filename}'.")
+        out.puts(
+          'This file is searched in the current directory and all its parrents.'
+        )
       end
     end
 

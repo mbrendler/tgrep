@@ -27,7 +27,8 @@ module Tgrep
       @args.each do |key, value|
         define_singleton_method(key){ value } unless respond_to?(key)
       end
-      self.class.const_set(:CONFIG, self) unless self.class.const_defined?(:CONFIG)
+      return if self.class.const_defined?(:CONFIG)
+      self.class.const_set(:CONFIG, self)
     end
 
     def to_s
