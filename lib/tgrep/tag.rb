@@ -68,10 +68,11 @@ module Tgrep
 
     def code
       @code ||= pattern.dup.tap do |code|
-        code.gsub!(/^\^?\s*/, '')
-        code.gsub!(/\s*;\s*\$?$/, '')
+        code.gsub!(/^\s+/, '')
+        code.gsub!(/\s+$/, '')
+        code.gsub!(/\s+;/, ';')
         code.gsub!(/\s+/, ' ')
-        code.gsub!(/\(\s*/, '(')
+        code.gsub!(/\s*\(\s*/, '(')
         code.gsub!(/\s*\)/, ')')
       end
     end

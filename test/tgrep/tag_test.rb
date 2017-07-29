@@ -6,7 +6,7 @@ class TagTest < Minitest::Test
   MEMBER_TAG = [
     'amember',
     'path/to/file.h',
-    '/^  int amember;  \\/\\/ comment$/;"',
+    '/^  int   amember  (  lala   )  ;  \\/\\/ comment   $/;"',
     'm',
     'class:Aclass',
     'access:public'
@@ -15,7 +15,7 @@ class TagTest < Minitest::Test
   MEMBER_TAG_HASH = {
     name: 'amember',
     filename: 'path/to/file.h',
-    pattern: '^  int amember;  \\/\\/ comment$',
+    pattern: '^  int   amember  (  lala   )  ;  \\/\\/ comment   $',
     kind: 'm',
     class: 'Aclass',
     access: 'public'
@@ -54,7 +54,10 @@ class TagTest < Minitest::Test
   end
 
   def test_pattern
-    assert_equal('  int amember;  // comment', subject.pattern)
+    assert_equal(
+      '  int   amember  (  lala   )  ;  // comment   ',
+      subject.pattern
+    )
     assert_equal('foo', Tgrep::Tag.new({pattern: '^foo'}, '').pattern)
     assert_equal('bar', Tgrep::Tag.new({pattern: 'bar$'}, '').pattern)
     assert_equal('baz', Tgrep::Tag.new({pattern: 'baz'}, '').pattern)
@@ -81,7 +84,14 @@ class TagTest < Minitest::Test
     assert(tag.match?(' foo'))
   end
 
-  # TODO: test <=>, code, signature, simple_signature
+  # TODO: test <=>, signature, simple_signature
+
+  def test_code
+    assert_equal(
+      'int amember(lala); // comment',
+      Tgrep::Tag.new(MEMBER_TAG_HASH, '').code
+    )
+  end
 
   private
 
