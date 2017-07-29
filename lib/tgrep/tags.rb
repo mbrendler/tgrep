@@ -23,9 +23,9 @@ module Tgrep
       end]
     end
 
-    def each(&block)
+    def each
       return to_enum(__method__) unless block_given?
-      @tags.each_value{ |tags| tags.each(&block) }
+      @tags.each_value(&proc)
     end
   end
 end

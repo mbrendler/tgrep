@@ -11,13 +11,9 @@ class TagsTest < Minitest::Test
   # TODO: sort!
 
   def test_each
-    expected_tags = [
-      Tgrep::Tag.new({name: 'foo', pattern: 'foo'}, ''),
-      Tgrep::Tag.new({name: 'bar', pattern: 'bar'}, '')
-    ]
-    tags = Tgrep::Tags.new
-      .add(expected_tags[0])
-      .add(expected_tags[1])
-    assert_equal(expected_tags, tags.each.to_a)
+    tag1 = Tgrep::Tag.new({name: 'foo', pattern: 'foo'}, '')
+    tag2 = Tgrep::Tag.new({name: 'bar', pattern: 'bar'}, '')
+    tags = Tgrep::Tags.new.add(tag1).add(tag2)
+    assert_equal([[tag1], [tag2]], tags.each.to_a)
   end
 end
