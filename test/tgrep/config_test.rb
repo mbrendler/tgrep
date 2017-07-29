@@ -62,6 +62,7 @@ class ConfigTest < Minitest::Test
 
   def test_open_tagfile
     assert_equal("a-tag\tfile\t/^pattern$/;\"\n", SUBJECT.open_tagfile.read)
+    assert_equal($stdin, Config.new(tagfile: '-').open_tagfile)
   end
 
   def test_base_dir
