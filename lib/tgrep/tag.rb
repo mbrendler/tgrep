@@ -39,8 +39,13 @@ module Tgrep
     end
 
     def identifier
-      return "#{name}#{simple_signature}" if class_name && name.start_with?(class_name)
-      "#{class_name}::#{name}#{simple_signature}"
+      @identifier ||= begin
+        identifier = "#{name}#{simple_signature}"
+        if class_name && !name.start_with?(class_name)
+          return "#{class_name}::#{identifier}"
+        end
+        identifier
+      end
     end
 
     def add_line_number(nr)
