@@ -61,7 +61,7 @@ module Tgrep
         return TagNameCaseInSensitiveCompare.new(tag.downcase)
       end
       re = tag[-1] == '$' ? "#{tag[0...-1]}\t" : "#{tag}[^\t]*\t"
-      re = "^[^\t]#{re}" if re[0] != '^'
+      re = "^[^\t]*#{re}" if re[0] != '^'
       Regexp.new(re, case_sensitive ? 0 : Regexp::IGNORECASE)
     end
 

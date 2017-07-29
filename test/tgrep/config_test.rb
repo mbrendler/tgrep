@@ -77,8 +77,8 @@ class ConfigTest < Minitest::Test
   end
 
   def test_matcher
-    assert_equal(/^[^	]a-tag[^	]*	/i, SUBJECT.matcher)
-    assert_equal(/^[^	]a-tag	/i, config(tag: 'a-tag$').matcher)
+    assert_equal(/^[^	]*a-tag[^	]*	/i, SUBJECT.matcher)
+    assert_equal(/^[^	]*a-tag	/i, config(tag: 'a-tag$').matcher)
     assert_equal(/^a-tag	/i, config(tag: '^a-tag$').matcher)
     assert_equal(/^a-tag[^	]*	/i, config(tag: '^a-tag').matcher)
 
