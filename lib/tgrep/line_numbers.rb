@@ -12,7 +12,7 @@ module LineNumbers
     return if @tags[filename].empty?
     class_name = ''
     line_numbers = Hash.new{ |h, k| h[k] = [] }
-    File.open(filename, "r:#{Config::CONFIG.encoding}").each_line.with_index(1) do |line, i|
+    File.open(filename, "r:#{Tgrep::Config::CONFIG.encoding}").each_line.with_index(1) do |line, i|
       class_name = line[RE_CLASS_NAME, 2] || class_name
       line.delete!("\n\r")
       @tags[filename].each do |tag|
