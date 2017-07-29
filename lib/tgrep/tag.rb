@@ -126,8 +126,10 @@ module Tgrep
 
       def class_name(data)
         data[:class_name] ||= begin
-          class_name = data[:class] || data[:enum] || data[:typeref] || (data[:kind] == 'c' ? data[:name] : nil)
-          data[:namespace] ? "#{data[:namespace]}::#{class_name}" : class_name
+          values = %i[namespace class typeref enum].map{ |k| data[k] }
+          values << data[:name] if 'cgnstu'.include?(data[:kind])
+          values.compact!
+          values.join('::')
         end
       end
 

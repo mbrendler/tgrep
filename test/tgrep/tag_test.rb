@@ -26,13 +26,13 @@ class TagTest < Minitest::Test
   end
 
   def test_self_class_name
-    assert_equal('Aclass', Tgrep::Tag.class_name(class: 'Aclass'))
-    assert_equal('Aenum', Tgrep::Tag.class_name(enum: 'Aenum'))
-    assert_equal('Atyperef', Tgrep::Tag.class_name(typeref: 'Atyperef'))
+    assert_equal('Aclass', Tgrep::Tag.class_name(class: 'Aclass', kind: ''))
+    assert_equal('Aenum', Tgrep::Tag.class_name(enum: 'Aenum', kind: ''))
+    assert_equal('Aref', Tgrep::Tag.class_name(typeref: 'Aref', kind: ''))
     assert_equal('Aclass', Tgrep::Tag.class_name(kind: 'c', name: 'Aclass'))
     assert_equal(
       'namespace::Aclass',
-      Tgrep::Tag.class_name(namespace: 'namespace', class: 'Aclass')
+      Tgrep::Tag.class_name(namespace: 'namespace', class: 'Aclass', kind: '')
     )
   end
 
