@@ -37,8 +37,10 @@ class TagTest < Minitest::Test
   end
 
   def test_class_name
-    expect(Tgrep::Tag).to receive(:class_name).with(MEMBER_TAG_HASH).and_return('cls')
-    assert_equal('cls', subject.class_name)
+    expect(Tgrep::Tag).to receive(:class_name)
+      .with(MEMBER_TAG_HASH)
+      .and_return('class')
+    assert_equal('class', subject.class_name)
   end
 
   def test_simple
