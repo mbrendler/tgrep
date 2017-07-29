@@ -11,9 +11,7 @@ module Tgrep
       @base_dir = base_dir
     end
 
-    %i[name filename kind].each do |name|
-      define_method(name){ @data[name] }
-    end
+    %i[name filename kind].each{ |name| define_method(name){ @data[name] } }
 
     def class_name
       self.class.class_name(@data)
