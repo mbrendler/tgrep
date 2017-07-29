@@ -60,12 +60,16 @@ module Tgrep
         return TagNameCaseSensitiveCompare.new(tag) if case_sensitive
         return TagNameCaseInSensitiveCompare.new(tag.downcase)
       end
+      re_matcher
+    end
+
+    private
+
+    def re_matcher
       re = tag[-1] == '$' ? "#{tag[0...-1]}\t" : "#{tag}[^\t]*\t"
       re = "^[^\t]*#{re}" if re[0] != '^'
       Regexp.new(re, case_sensitive ? 0 : Regexp::IGNORECASE)
     end
-
-    private
 
     def find_tagfile
       dir = Dir.pwd
