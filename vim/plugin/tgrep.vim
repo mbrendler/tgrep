@@ -12,7 +12,7 @@ endif
 function! tgrep#find_tag(tagname)
   if tgrep#system("tgrep -s '^". a:tagname . "$'", 0) == 0
     if tgrep#system("tgrep -s '". a:tagname . "$'", 0) == 0
-      tgrep#system("tgrep -s '". a:tagname . "'", 1)
+      call tgrep#system("tgrep -s '". a:tagname . "'", 1)
     endif
   endif
 endfunction
