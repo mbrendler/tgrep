@@ -33,11 +33,6 @@ class Config
     "Cfg(#{@args})"
   end
 
-  def open_tagfile
-    return $stdin if tagfile == '-'
-    open(tagfile, "r:#{encoding}")
-  end
-
   def encoding
     @encoding ||= encodings[-1] || 'utf-8'
   end
@@ -50,13 +45,9 @@ class Config
     @args[:tagfile] || find_tagfile
   end
 
-  def find_tagfile
-    dir = Dir.pwd
-    until File.file?("#{dir}/tags")
-      return nil if File.dirname(dir) == dir
-      dir = File.dirname(dir)
-    end
-    "#{dir}/tags"
+  def open_tagfile
+    return $stdin if tagfile == '-'
+    open(tagfile, "r:#{encoding}")
   end
 
   def base_dir
@@ -71,5 +62,16 @@ class Config
     re = tag[-1] == '$' ? "#{tag[0...-1]}\t" : "#{tag}[^\t]*\t"
     re = "^[^\t]#{re}" if re[0] != '^'
     Regexp.new(re, case_sensitive ? 0 : Regexp::IGNORECASE)
+  end
+
+  private
+
+  def find_tagfile
+    dir = Dir.pwd
+    until File.file?("#{dir}/tags")
+      return nil if File.dirname(dir) == dir
+      dir = File.dirname(dir)
+    end
+    "#{dir}/tags"
   end
 end
