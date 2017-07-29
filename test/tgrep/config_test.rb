@@ -90,11 +90,11 @@ class ConfigTest < Minitest::Test
 
   def test_matcher_literal
     matcher = config(tag: 'a-Tag', literal: true).matcher
-    assert_equal(TagNameCaseInSensitiveCompare, matcher.class)
+    assert_equal(Tgrep::TagNameCaseInSensitiveCompare, matcher.class)
     assert_equal('a-tag', matcher.search)
 
     matcher = config(tag: 'a-Tag', literal: true, case_sensitive: true).matcher
-    assert_equal(TagNameCaseSensitiveCompare, matcher.class)
+    assert_equal(Tgrep::TagNameCaseSensitiveCompare, matcher.class)
     assert_equal('a-Tag', matcher.search)
   end
 
