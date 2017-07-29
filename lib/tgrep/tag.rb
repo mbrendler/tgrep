@@ -59,6 +59,10 @@ module Tgrep
       (line_numbers[0] || 0).to_i - (other.line_numbers[0] || 0).to_i
     end
 
+    def kind_index
+      KIND_ORDER.index(kind) || -1
+    end
+
     def code
       @code ||= pattern.dup.tap do |code|
         code.gsub!(/^\^?\s*/, '')
@@ -104,10 +108,6 @@ module Tgrep
 
     def end_pattern?
       @end_pattern ||= data[:pattern][-1] == '$'
-    end
-
-    def kind_index
-      KIND_ORDER.index(kind) || -1
     end
 
     class << self
