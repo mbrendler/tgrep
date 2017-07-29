@@ -3,7 +3,7 @@ require_relative 'line_matchers'
 
 module Tgrep
   class Config
-    extend Tgrep::OptionParser
+    extend OptionParser
 
     options_filename '.tgrep'
 
