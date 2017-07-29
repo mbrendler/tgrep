@@ -26,7 +26,7 @@ class Config
     @args.each do |key, value|
       define_singleton_method(key){ value } unless respond_to?(key)
     end
-    self.class.const_set('CONFIG', self)
+    self.class.const_set(:CONFIG, self) unless defined?(:CONFIG)
   end
 
   def to_s
