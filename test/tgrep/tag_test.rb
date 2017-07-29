@@ -22,22 +22,22 @@ class TagTest < Minitest::Test
   }.freeze
 
   def test_self_parse
-    assert_equal(MEMBER_TAG_HASH, Tag.parse(MEMBER_TAG))
+    assert_equal(MEMBER_TAG_HASH, Tgrep::Tag.parse(MEMBER_TAG))
   end
 
   def test_self_class_name
-    assert_equal('Aclass', Tag.class_name(class: 'Aclass'))
-    assert_equal('Aenum', Tag.class_name(enum: 'Aenum'))
-    assert_equal('Atyperef', Tag.class_name(typeref: 'Atyperef'))
-    assert_equal('Aclass', Tag.class_name(kind: 'c', name: 'Aclass'))
+    assert_equal('Aclass', Tgrep::Tag.class_name(class: 'Aclass'))
+    assert_equal('Aenum', Tgrep::Tag.class_name(enum: 'Aenum'))
+    assert_equal('Atyperef', Tgrep::Tag.class_name(typeref: 'Atyperef'))
+    assert_equal('Aclass', Tgrep::Tag.class_name(kind: 'c', name: 'Aclass'))
     assert_equal(
       'namespace::Aclass',
-      Tag.class_name(namespace: 'namespace', class: 'Aclass')
+      Tgrep::Tag.class_name(namespace: 'namespace', class: 'Aclass')
     )
   end
 
   def test_class_name
-    expect(Tag).to receive(:class_name).with(MEMBER_TAG_HASH).and_return('cls')
+    expect(Tgrep::Tag).to receive(:class_name).with(MEMBER_TAG_HASH).and_return('cls')
     assert_equal('cls', subject.class_name)
   end
 
@@ -53,27 +53,27 @@ class TagTest < Minitest::Test
 
   def test_pattern
     assert_equal('  int amember;  // comment', subject.pattern)
-    assert_equal('foo', Tag.new({pattern: '^foo'}, '').pattern)
-    assert_equal('bar', Tag.new({pattern: 'bar$'}, '').pattern)
-    assert_equal('baz', Tag.new({pattern: 'baz'}, '').pattern)
+    assert_equal('foo', Tgrep::Tag.new({pattern: '^foo'}, '').pattern)
+    assert_equal('bar', Tgrep::Tag.new({pattern: 'bar$'}, '').pattern)
+    assert_equal('baz', Tgrep::Tag.new({pattern: 'baz'}, '').pattern)
   end
 
   def test_match_with_full_line_pattern
-    tag = Tag.new({pattern: '^foo$'}, '')
+    tag = Tgrep::Tag.new({pattern: '^foo$'}, '')
     assert(tag.match?('foo'))
     refute(tag.match?('foo '))
     refute(tag.match?(' foo'))
   end
 
   def test_match_with_start_pattern
-    tag = Tag.new({pattern: '^foo'}, '')
+    tag = Tgrep::Tag.new({pattern: '^foo'}, '')
     assert(tag.match?('foo'))
     assert(tag.match?('foo '))
     refute(tag.match?(' foo'))
   end
 
   def test_match_with_end_pattern
-    tag = Tag.new({pattern: 'foo$'}, '')
+    tag = Tgrep::Tag.new({pattern: 'foo$'}, '')
     assert(tag.match?('foo'))
     refute(tag.match?('foo '))
     assert(tag.match?(' foo'))
@@ -84,6 +84,6 @@ class TagTest < Minitest::Test
   private
 
   def subject
-    @subject ||= Tag.new(MEMBER_TAG_HASH.dup, '/a/base/dir')
+    @subject ||= Tgrep::Tag.new(MEMBER_TAG_HASH.dup, '/a/base/dir')
   end
 end
