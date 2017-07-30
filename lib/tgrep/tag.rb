@@ -95,6 +95,8 @@ module Tgrep
       end
     end
 
+    private
+
     def simple_signature
       signature.dup.tap do |sig|
         sig.gsub!(/=[^,)]*/, '')
@@ -103,8 +105,6 @@ module Tgrep
         sig.gsub!(/([^ ,)]+) [,)]/, '\1,')
       end
     end
-
-    private
 
     def start_pattern?
       @start_pattern ||= data[:pattern][0] == '^'
