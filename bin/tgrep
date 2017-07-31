@@ -1,35 +1,6 @@
 #! /usr/bin/env ruby
 require_relative '../lib/tgrep'
 
-if $stdout.tty?
-  TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}".freeze
-  TPUT_KEY = `tput setaf 4`.freeze
-  TPUT_CLEAR = "#{`tput op`}#{`tput sgr0`}".freeze
-else
-  TPUT_PRIMARY = ''.freeze
-  TPUT_KEY = ''.freeze
-  TPUT_CLEAR = ''.freeze
-end
-
-module Printer
-  def self.find_best_signature(tags)
-    tags.map(&:signature).max_by(&:size)
-  end
-
-  def self.pretty_print(all_tags, config)
-    all_tags.each do |tags|
-      tag = tags[0]
-      name = tag.name.sub(/^#{tag.data[:class]}::/, '')
-      puts("#{TPUT_KEY}#{tag.data[:class]}#{TPUT_CLEAR}::#{TPUT_PRIMARY}#{name}#{TPUT_CLEAR}#{find_best_signature(tags)} // #{tags[0].code}")
-      tags.each do |t|
-        filename = config.full_path ? t.absolute_filename : t.filename
-        puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{filename}:#{t.line_numbers.join(' ')}")
-      end
-      puts
-    end
-  end
-end
-
 module Tgrep
   def self.main(args)
     config = Config.parse(args)
@@ -52,7 +23,7 @@ module Tgrep
     end
     exit(1) if tags.empty?
     tags.sort!
-    Printer.pretty_print(tags, config)
+    tags.each{ |tag| Pretty.print(tag, config) }
   end
 
   def self.check_patterns(str, patterns)
