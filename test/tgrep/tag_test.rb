@@ -29,7 +29,7 @@ class TagTest < Minitest::Test
     assert_equal('Aclass', Tgrep::Tag.class_name(class: 'Aclass', kind: ''))
     assert_equal('Aenum', Tgrep::Tag.class_name(enum: 'Aenum', kind: ''))
     assert_equal('Aref', Tgrep::Tag.class_name(typeref: 'Aref', kind: ''))
-    assert_equal('Aclass', Tgrep::Tag.class_name(kind: 'c', name: 'Aclass'))
+    assert_equal('', Tgrep::Tag.class_name(kind: 'c', name: 'Aclass'))
     assert_equal(
       'namespace::Aclass',
       Tgrep::Tag.class_name(namespace: 'namespace', class: 'Aclass', kind: '')
@@ -37,10 +37,36 @@ class TagTest < Minitest::Test
   end
 
   def test_class_name
-    expect(Tgrep::Tag).to receive(:class_name)
-      .with(MEMBER_TAG_HASH)
-      .and_return('class')
-    assert_equal('class', subject.class_name)
+    assert_equal('Aclass', Tgrep::Tag.class_name(class: 'Aclass', kind: ''))
+    assert_equal('Aenum', Tgrep::Tag.class_name(enum: 'Aenum', kind: ''))
+    assert_equal('Aref', Tgrep::Tag.class_name(typeref: 'Aref', kind: ''))
+    assert_equal('', Tgrep::Tag.class_name(kind: 'c', name: 'Aclass'))
+    assert_equal(
+      'namespace::Aclass',
+      Tgrep::Tag.class_name(namespace: 'namespace', class: 'Aclass', kind: '')
+    )
+  end
+
+  def test_self_full_class_name
+    assert_equal('Acls', Tgrep::Tag.full_class_name(class: 'Acls', kind: 'm'))
+    assert_equal('Aenum', Tgrep::Tag.full_class_name(enum: 'Aenum', kind: 'm'))
+    assert_equal('Aref', Tgrep::Tag.full_class_name(typeref: 'Aref', kind: 'm'))
+    assert_equal('Acls', Tgrep::Tag.full_class_name(kind: 'c', name: 'Acls'))
+    assert_equal(
+      'space::Aclass',
+      Tgrep::Tag.full_class_name(namespace: 'space', class: 'Aclass', kind: 'm')
+    )
+  end
+
+  def test_full_class_name
+    assert_equal('Acls', Tgrep::Tag.full_class_name(class: 'Acls', kind: 'm'))
+    assert_equal('Aenum', Tgrep::Tag.full_class_name(enum: 'Aenum', kind: 'm'))
+    assert_equal('Aref', Tgrep::Tag.full_class_name(typeref: 'Aref', kind: 'm'))
+    assert_equal('Acls', Tgrep::Tag.full_class_name(kind: 'c', name: 'Acls'))
+    assert_equal(
+      'space::Aclass',
+      Tgrep::Tag.full_class_name(namespace: 'space', class: 'Aclass', kind: 'm')
+    )
   end
 
   def test_simple

@@ -39,12 +39,12 @@ module Tgrep
       next if line.start_with?('!_TAG_')
       if config.outline
         tag_hash = Tag.parse(line)
-        next if Tag.class_name(tag_hash) != config.tag
+        next if Tag.full_class_name(tag_hash) != config.tag
       else
         next unless matcher.match?(line)
         tag_hash = Tag.parse(line)
         next unless check_patterns(tag_hash[:filename], config.file_patterns)
-        next unless check_patterns(Tag.class_name(tag_hash), config.classes)
+        next unless check_patterns(Tag.full_class_name(tag_hash), config.classes)
       end
       tag = Tag.new(tag_hash, config.base_dir)
       tags.add(tag)

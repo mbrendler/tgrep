@@ -17,6 +17,10 @@ module Tgrep
       self.class.class_name(@data)
     end
 
+    def full_class_name
+      self.class.full_class_name(@data)
+    end
+
     def absolute_filename
       File.join(@base_dir, filename)
     end
@@ -131,9 +135,20 @@ module Tgrep
       def class_name(data)
         data[:class_name] ||= begin
           values = %i[namespace class typeref enum].map{ |k| data[k] }
-          values << data[:name] if 'cgnstu'.include?(data[:kind])
           values.compact!
           values.join('::')
+        end
+      end
+
+      def full_class_name(data)
+        data[:full_class_name] ||= if 'cgnstu'.include?(data[:kind])
+          if class_name(data).empty?
+            data[:name]
+          else
+            "#{class_name(data)}::#{data[:name]}"
+          end
+        else
+          class_name(data)
         end
       end
 
