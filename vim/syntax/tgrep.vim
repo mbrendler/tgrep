@@ -4,10 +4,10 @@ if exists("b:current_syntax")
     finish
 endif
 
-syntax match TgrepComment ' \/\/.*$'
+syntax match TgrepComment '^ #.*$'
 syntax match TgrepFunction '::\([^:( ]*\)'
 syntax match TgrepSignature '([^)]*)'
-syntax match TgrepKind '^ .\>'
+syntax match TgrepKind '^ [^#]\>'
 " syntax match TgrepFile ' .*:'
 syntax match TgrepLineNumber '\d*$'
 

@@ -63,7 +63,7 @@ endfunction
 function! tgrep#open_file(action)
   let l:lines = getline('.', line('.') + 50)
   for lin in l:lines
-    if lin =~ "^ . .*$"
+    if lin =~ "^ [^#] .*$"
       let l:edit_command = ":edit"
       if a:action == 'close'
         bw
