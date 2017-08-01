@@ -14,6 +14,13 @@ If *tagfile* is omitted tgrep searches for a file named `tags` from the
 current directory down to root directory.
 
 
+## Tests
+
+```
+$ rake test
+```
+
+
 ## Caveats
 
 * It's slow for large tagfiles.
