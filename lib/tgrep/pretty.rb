@@ -13,17 +13,23 @@ module Tgrep
     end
 
     def self.print(tags, config)
+      print_heading(tags)
+      tags.each{ |tag| print_tag(tag, config) }
+      puts
+    end
+
+    def self.print_tag(tag, config)
+      filename = config.full_path ? tag.absolute_filename : tag.filename
+      line_numbers = tag.line_numbers.empty? ? [0] : tag.line_numbers
+      puts(" #{TPUT_CODE}# #{tag.code}#{TPUT_CLEAR}")
+      line_numbers.each do |line_number|
+        puts(" #{TPUT_KEY}#{tag.kind}#{TPUT_CLEAR} #{filename}:#{line_number}")
+      end
+    end
+
+    def self.print_heading(tags)
       tag = tags[0]
       puts("#{pretty_class(tag)}#{pretty_name(tag)}#{best_signature(tags)}")
-      tags.each do |t|
-        filename = config.full_path ? t.absolute_filename : t.filename
-        line_numbers = t.line_numbers.empty? ? [0] : t.line_numbers
-        puts(" #{TPUT_CODE}# #{t.code}#{TPUT_CLEAR}")
-        line_numbers.each do |line_number|
-          puts(" #{TPUT_KEY}#{t.kind}#{TPUT_CLEAR} #{filename}:#{line_number}")
-        end
-      end
-      puts
     end
 
     def self.best_signature(tags)
