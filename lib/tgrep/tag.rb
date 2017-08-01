@@ -1,5 +1,3 @@
-require_relative 'line_numbers'
-
 module Tgrep
   class Tag
     # see `ctags --list-kinds`:
@@ -50,13 +48,7 @@ module Tgrep
       end
     end
 
-    def add_line_number(nr)
-      (@line_numbers ||= []) << nr
-    end
-
     def line_numbers
-      return @line_numbers if instance_variable_defined?(:@line_numbers)
-      LineNumbers.find_line_numbers(absolute_filename)
       @line_numbers ||= []
     end
 

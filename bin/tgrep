@@ -19,9 +19,9 @@ module Tgrep
       end
       tag = Tag.new(tag_hash, config.base_dir)
       tags.add(tag)
-      LineNumbers.add_tag(tag)
     end
     exit(1) if tags.empty?
+    tags.collect_line_numbers(config.encoding)
     tags.sort!
     tags.each{ |tag| Pretty.print(tag, config) }
   end
