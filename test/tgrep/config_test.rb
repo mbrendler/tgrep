@@ -2,7 +2,6 @@ require_relative '../test_helper'
 
 class ConfigTest < Minitest::Test
   SUBJECT = Tgrep::Config.new(
-    literal: false,
     case_sensitive: false,
     full_path: false,
     outline: false,
@@ -12,11 +11,6 @@ class ConfigTest < Minitest::Test
     tag: 'a-tag',
     tagfile: "#{__dir__}/tags"
   )
-
-  def test_literal
-    refute(SUBJECT.literal)
-    assert(Tgrep::Config.new(literal: true).literal)
-  end
 
   def test_case_sensitive
     refute(SUBJECT.case_sensitive)
@@ -88,23 +82,10 @@ class ConfigTest < Minitest::Test
     )
   end
 
-  def test_matcher_literal
-    matcher = config(tag: 'a-Tag', literal: true).matcher
-    assert_equal(Tgrep::TagNameCaseInSensitiveCompare, matcher.class)
-    assert_equal('a-tag', matcher.search)
-
-    matcher = config(tag: 'a-Tag', literal: true, case_sensitive: true).matcher
-    assert_equal(Tgrep::TagNameCaseSensitiveCompare, matcher.class)
-    assert_equal('a-Tag', matcher.search)
-  end
-
   private
 
   def config(options = {})
-    Tgrep::Config.new({
-      literal: false,
-      case_sensitive: false
-    }.merge(options))
+    Tgrep::Config.new({case_sensitive: false}.merge(options))
   end
 
   def cd(dir)
