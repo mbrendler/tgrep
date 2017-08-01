@@ -110,6 +110,3 @@ function! s:tgrep_buffer_name()
   endif
   return t:tgrep_buffer_name
 endfunction
-
-nnoremap gü :call tgrep#find_tag(expand("<cword>"))<CR>
-vnoremap gü :call tgrep#find_tag(VisualSelection())<CR>
