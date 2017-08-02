@@ -77,11 +77,17 @@ module Tgrep
         return if @parse_state != :options
         options = [_long_option(name)]
         options << "-#{short_option}" if short_option
+        if name.to_s.start_with?('no_')
+          name = name[3..-1].to_sym
+          enabled_value = false
+        else
+          enabled_value = true
+        end
         if options.include?(@args[@offset])
           @args.delete_at(@offset)
-          @parsed[name] = true
+          @parsed[name] = enabled_value
         elsif @parsed[name].nil?
-          @parsed[name] = false
+          @parsed[name] = !enabled_value
         end
       end
 

@@ -12,6 +12,7 @@ TestConfig = Struct.new(:args) do
     pos(:arg2, optional: true)
 
     opt(:only_long_opt, 'help about only-long-opt')
+    opt(:no_only_long_opt, 'disables --only-long-opt')
     opt('s', :with_short_opt, 'help about with_short_opt')
 
     arg(:only_long_arg, 'TYPE', 'help about only-long-arg')
@@ -53,6 +54,11 @@ class OptionParserTest < Minitest::Test
   def test_options
     assert(SUBJECT.args[:only_long_opt])
     assert(SUBJECT.args[:with_short_opt])
+  end
+
+  def test_no_option
+    subject = TestConfig.parse(['--only-long-opt', '--no-only-long-opt', 'foo'])
+    refute(subject.args[:only_long_opt])
   end
 
   def test_short_option
@@ -114,6 +120,7 @@ class OptionParserTest < Minitest::Test
     #{$PROGRAM_NAME} [OPTIONS] ARG1 [ARG2]
 
       --only-long-opt           -- help about only-long-opt
+      --no-only-long-opt        -- disables --only-long-opt
       -s, --with-short-opt      -- help about with_short_opt
       --only-long-arg TYPE      -- help about only-long-arg
       -a, --with-short-arg TYPE -- help about with-short-arg
