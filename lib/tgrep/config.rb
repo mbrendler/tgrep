@@ -11,6 +11,7 @@ module Tgrep
 
     options do
       opt('s', :case_sensitive, 'case sensitive')
+      opt('i', :no_case_sensitive, 'case insensitive')
       opt(:full_path, 'show full path')
       opt(:outline, 'show the contents of a class')
       arg(
