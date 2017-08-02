@@ -3,6 +3,8 @@ require_relative '../test_helper'
 TestConfig = Struct.new(:args) do
   extend Tgrep::OptionParser
 
+  version 'a-version'
+
   options_filename '__options_file__'
 
   options do
@@ -115,6 +117,8 @@ class OptionParserTest < Minitest::Test
       -s, --with-short-opt      -- help about with_short_opt
       --only-long-arg TYPE      -- help about only-long-arg
       -a, --with-short-arg TYPE -- help about with-short-arg
+      -h, --help                -- show help
+      --version                 -- show version
 
     All options can be written into a '__options_file__'.
     This file is searched in the current directory and all its parrents.
@@ -132,5 +136,17 @@ class OptionParserTest < Minitest::Test
     out = StringIO.new
     TestConfig.usage(123, out: out)
     assert_equal(EXPECTED_USAGE, out.string)
+  end
+
+  def test_version_option
+    expect(TestConfig).to receive(:version).with(no_args)
+    TestConfig.parse(['--version'])
+  end
+
+  def test_version
+    expect(TestConfig).to receive(:exit).with(0)
+    out = StringIO.new
+    TestConfig.version(out: out)
+    assert_equal("a-version\n", out.string)
   end
 end

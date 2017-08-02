@@ -1,8 +1,11 @@
 require_relative 'option_parser'
+require_relative 'version'
 
 module Tgrep
   class Config
     extend OptionParser
+
+    version Tgrep::VERSION
 
     options_filename '.tgrep'
 

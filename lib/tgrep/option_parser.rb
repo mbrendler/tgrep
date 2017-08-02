@@ -11,8 +11,18 @@ module Tgrep
       @block = block
     end
 
+    def version(version = nil, out: $stdout)
+      if version.nil?
+        out.puts(@version)
+        exit(0)
+      else
+        @version = version
+      end
+    end
+
     def parse(args)
       return usage if args.delete('-h') || args.delete('--help')
+      return version if args.delete('--version')
       args = ArgsNormalizer.new(options_from_file + args).normalize(&@block)
       parsed = Parser.new(args, &@block).parsed
       new(parsed)
@@ -139,8 +149,8 @@ module Tgrep
 
       def print(out)
         out.puts "#{$PROGRAM_NAME} [OPTIONS] #{@positional.join(' ')}\n\n"
-        max_left = @options.map{ |x| x[0].size }.max
-        @options.each do |option, help|
+        max_left = options.map{ |x| x[0].size }.max
+        options.each do |option, help|
           out.puts("  #{option.ljust(max_left)} -- #{help}")
         end
         out.puts
@@ -148,6 +158,17 @@ module Tgrep
         out.puts(
           'This file is searched in the current directory and all its parrents.'
         )
+      end
+
+      def options
+        @options + [
+          ['-h, --help', 'show help'],
+          ['--version', 'show version']
+        ]
+      end
+
+      def print_option(out, option, help)
+        out.puts("  #{option.ljust(max_left)} -- #{help}")
       end
     end
 
