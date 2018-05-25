@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'option_parser'
 require_relative 'version'
 
@@ -27,7 +29,7 @@ module Tgrep
     def initialize(args)
       @args = args
       @args.each do |key, value|
-        define_singleton_method(key){ value } unless respond_to?(key)
+        define_singleton_method(key) { value } unless respond_to?(key)
       end
       return if self.class.const_defined?(:CONFIG)
       self.class.const_set(:CONFIG, self)
@@ -51,7 +53,7 @@ module Tgrep
 
     def open_tagfile
       return $stdin if tagfile == '-'
-      open(tagfile, "r:#{encoding}")
+      File.open(tagfile, "r:#{encoding}")
     end
 
     def base_dir

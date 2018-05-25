@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Tgrep
   module LineHandlers
     def self.line_handler(config, tags)
@@ -31,7 +33,7 @@ module Tgrep
 
     def self.check_patterns(str, patterns)
       return true if patterns.empty?
-      patterns.any?{ |pattern| /#{pattern}/.match?(str) }
+      patterns.any? { |pattern| /#{pattern}/.match?(str) }
     end
   end
 end

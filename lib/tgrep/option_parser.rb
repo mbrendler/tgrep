@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Tgrep
   module OptionParser
     class Error < StandardError
@@ -27,7 +29,7 @@ module Tgrep
       parsed = Parser.new(args, &@block).parsed
       new(parsed)
     rescue Error => e
-      $stderr.puts(e.to_s)
+      Kernel.warn(e.to_s)
       usage(1)
     end
 
@@ -43,7 +45,7 @@ module Tgrep
     def options_from_file
       options_filename = find_options_filename
       return [] if options_filename.nil?
-      File.readlines(options_filename).map{ |l| l.delete("\n\r") }
+      File.readlines(options_filename).map { |l| l.delete("\n\r") }
     end
 
     def find_options_filename
@@ -155,7 +157,7 @@ module Tgrep
 
       def print(out)
         out.puts "#{$PROGRAM_NAME} [OPTIONS] #{@positional.join(' ')}\n\n"
-        max_left = options.map{ |x| x[0].size }.max
+        max_left = options.map { |x| x[0].size }.max
         options.each do |option, help|
           out.puts("  #{option.ljust(max_left)} -- #{help}")
         end
@@ -184,7 +186,7 @@ module Tgrep
         @offset = 0
       end
 
-      def pos(*_); end
+      def pos(*___); end
 
       def opt(short_option = nil, _name, _help)
         return if short_option.nil?

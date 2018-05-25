@@ -1,40 +1,22 @@
 Documentation:
   Enabled: false
 
-Layout/AlignParameters:
-  EnforcedStyle: with_fixed_indentation
+Metrics/ClassLength:
+  Enabled: false
 
-Layout/SpaceBeforeBlockBraces:
-  EnforcedStyle: no_space
+Metrics/MethodLength:
+  Max: 20
 
-Layout/SpaceInsideHashLiteralBraces:
-  EnforcedStyle: no_space
+Metrics/AbcSize:
+  Max: 20
 
-Layout/IndentHash:
-  EnforcedStyle: consistent
-
-Layout/IndentArray:
-  EnforcedStyle: consistent
-
-Layout/MultilineMethodCallIndentation:
-  EnforcedStyle: indented
+Metrics/PerceivedComplexity:
+  Max: 10
 
 Style/OptionalArguments:
   Enabled: false
 
-Style/FrozenStringLiteralComment:
-  EnforcedStyle: never
-
-Lint/BlockAlignment:
-  EnforcedStyleAlignWith: start_of_block
-
-Lint/DefEndAlignment:
-  EnforcedStyleAlignWith: start_of_line
-
-Lint/EndAlignment:
-  EnforcedStyleAlignWith: variable
-
 AllCops:
   DisplayCopNames: true
   DisplayStyleGuide: true
-  TargetRubyVersion: 2.4
+  TargetRubyVersion: 2.5

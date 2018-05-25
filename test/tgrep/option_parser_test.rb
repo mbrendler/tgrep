@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 TestConfig = Struct.new(:args) do
@@ -23,16 +25,18 @@ end
 class OptionParserTest < Minitest::Test
   include MinitestRSpecMocks
 
-  SUBJECT = TestConfig.parse(%w[
-    --only-long-opt
-    --with-short-arg s1
-    foo
-    --with-short-arg=s2
-    -a s3
-    bar
-    --with-short-opt
-    --only-long-arg l1
-  ])
+  SUBJECT = TestConfig.parse(
+    %w[
+      --only-long-opt
+      --with-short-arg s1
+      foo
+      --with-short-arg=s2
+      -a s3
+      bar
+      --with-short-opt
+      --only-long-arg l1
+    ]
+  )
 
   def test_possitional
     assert_equal('foo', SUBJECT.args[:arg1])
@@ -47,7 +51,7 @@ class OptionParserTest < Minitest::Test
 
   def test_positional_mandatory_is_missing
     expect(TestConfig).to receive(:usage).with(1)
-    expect($stderr).to receive(:puts).with('missing argument - arg1')
+    expect(Kernel).to receive(:warn).with('missing argument - arg1')
     TestConfig.parse([])
   end
 
@@ -116,7 +120,7 @@ class OptionParserTest < Minitest::Test
     TestConfig.parse(['-h'])
   end
 
-  EXPECTED_USAGE = <<~ø.freeze
+  EXPECTED_USAGE = <<~EXPECTED_USAGE
     #{$PROGRAM_NAME} [OPTIONS] ARG1 [ARG2]
 
       --only-long-opt           -- help about only-long-opt
@@ -129,7 +133,7 @@ class OptionParserTest < Minitest::Test
 
     All options can be written into a '__options_file__'.
     This file is searched in the current directory and all its parrents.
-  ø
+  EXPECTED_USAGE
 
   def test_usage_without_exit_code
     expect(TestConfig).to receive(:exit).with(0)

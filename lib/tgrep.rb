@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'tgrep/config'
 require_relative 'tgrep/tag'
 require_relative 'tgrep/tags'
@@ -12,7 +14,7 @@ module Tgrep
     exit(1) if tags.empty?
     tags.collect_line_numbers(config.encoding)
     tags.sort!
-    tags.each{ |tag| Pretty.print(tag, config) }
+    tags.each { |tag| Pretty.print(tag, config) }
   end
 
   def self.parse_tagfile(config)

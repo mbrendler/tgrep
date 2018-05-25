@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'minitest/autorun'
 require 'rspec/mocks'
 require_relative '../lib/tgrep'

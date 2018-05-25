@@ -1,20 +1,22 @@
+# frozen_string_literal: true
+
 module Tgrep
   module Pretty
     if $stdout.tty?
-      TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}".freeze
+      TPUT_PRIMARY = "#{`tput setaf 2`}#{`tput bold`}"
       TPUT_KEY = `tput setaf 4`.freeze
       TPUT_CODE = `tput setaf 8`.freeze
-      TPUT_CLEAR = "#{`tput op`}#{`tput sgr0`}".freeze
+      TPUT_CLEAR = "#{`tput op`}#{`tput sgr0`}"
     else
-      TPUT_PRIMARY = ''.freeze
-      TPUT_KEY = ''.freeze
-      TPUT_CODE = ''.freeze
-      TPUT_CLEAR = ''.freeze
+      TPUT_PRIMARY = ''
+      TPUT_KEY = ''
+      TPUT_CODE = ''
+      TPUT_CLEAR = ''
     end
 
     def self.print(tags, config)
       print_heading(tags)
-      tags.each{ |tag| print_tag(tag, config) }
+      tags.each { |tag| print_tag(tag, config) }
       puts
     end
 

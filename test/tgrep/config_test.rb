@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class ConfigTest < Minitest::Test
@@ -67,7 +69,7 @@ class ConfigTest < Minitest::Test
   def test_base_dir
     assert_equal(__dir__, SUBJECT.base_dir)
     assert_equal('.', Tgrep::Config.new(tagfile: '.').base_dir)
-    cd(__dir__){ assert_equal(__dir__, Tgrep::Config.new({}).base_dir) }
+    cd(__dir__) { assert_equal(__dir__, Tgrep::Config.new({}).base_dir) }
   end
 
   def test_matcher
@@ -85,7 +87,7 @@ class ConfigTest < Minitest::Test
   private
 
   def config(options = {})
-    Tgrep::Config.new({case_sensitive: false}.merge(options))
+    Tgrep::Config.new({ case_sensitive: false }.merge(options))
   end
 
   def cd(dir)

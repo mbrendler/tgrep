@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative '../test_helper'
 
 class TagTest < Minitest::Test
@@ -84,27 +86,27 @@ class TagTest < Minitest::Test
       '  int   amember  (  lala   )  ;  // comment   ',
       subject.pattern
     )
-    assert_equal('foo', Tgrep::Tag.new({pattern: '^foo'}, '').pattern)
-    assert_equal('bar', Tgrep::Tag.new({pattern: 'bar$'}, '').pattern)
-    assert_equal('baz', Tgrep::Tag.new({pattern: 'baz'}, '').pattern)
+    assert_equal('foo', Tgrep::Tag.new({ pattern: '^foo' }, '').pattern)
+    assert_equal('bar', Tgrep::Tag.new({ pattern: 'bar$' }, '').pattern)
+    assert_equal('baz', Tgrep::Tag.new({ pattern: 'baz' }, '').pattern)
   end
 
   def test_match_with_full_line_pattern
-    tag = Tgrep::Tag.new({pattern: '^foo$'}, '')
+    tag = Tgrep::Tag.new({ pattern: '^foo$' }, '')
     assert(tag.match?('foo'))
     refute(tag.match?('foo '))
     refute(tag.match?(' foo'))
   end
 
   def test_match_with_start_pattern
-    tag = Tgrep::Tag.new({pattern: '^foo'}, '')
+    tag = Tgrep::Tag.new({ pattern: '^foo' }, '')
     assert(tag.match?('foo'))
     assert(tag.match?('foo '))
     refute(tag.match?(' foo'))
   end
 
   def test_match_with_end_pattern
-    tag = Tgrep::Tag.new({pattern: 'foo$'}, '')
+    tag = Tgrep::Tag.new({ pattern: 'foo$' }, '')
     assert(tag.match?('foo'))
     refute(tag.match?('foo '))
     assert(tag.match?(' foo'))

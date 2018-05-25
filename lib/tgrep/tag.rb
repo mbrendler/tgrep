@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module Tgrep
   class Tag
     # see `ctags --list-kinds`:
@@ -9,7 +11,7 @@ module Tgrep
       @base_dir = base_dir
     end
 
-    %i[name filename kind].each{ |name| define_method(name){ @data[name] } }
+    %i[name filename kind].each { |name| define_method(name) { @data[name] } }
 
     def class_name
       self.class.class_name(@data)
@@ -74,7 +76,7 @@ module Tgrep
     end
 
     def signature
-      @signature ||= data.fetch(:signature, '').tap do |sig|
+      @signature ||= data.fetch(:signature, +'').tap do |sig|
         sig.tr!("\t", ' ')
         sig.gsub!(/ *, */, ', ')
         sig.gsub!(/  /, ' ')
@@ -126,22 +128,23 @@ module Tgrep
 
       def class_name(data)
         data[:class_name] ||= begin
-          values = %i[namespace class typeref enum].map{ |k| data[k] }
+          values = %i[namespace class typeref enum].map { |k| data[k] }
           values.compact!
           values.join('::')
         end
       end
 
       def full_class_name(data)
-        data[:full_class_name] ||= if 'cgnstu'.include?(data[:kind])
-          if class_name(data).empty?
-            data[:name]
+        data[:full_class_name] ||=
+          if 'cgnstu'.include?(data[:kind])
+            if class_name(data).empty?
+              data[:name]
+            else
+              "#{class_name(data)}::#{data[:name]}"
+            end
           else
-            "#{class_name(data)}::#{data[:name]}"
+            class_name(data)
           end
-        else
-          class_name(data)
-        end
       end
 
       private
