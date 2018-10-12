@@ -32,6 +32,7 @@ module Tgrep
         define_singleton_method(key) { value } unless respond_to?(key)
       end
       return if self.class.const_defined?(:CONFIG)
+
       self.class.const_set(:CONFIG, self)
     end
 
@@ -53,6 +54,7 @@ module Tgrep
 
     def open_tagfile
       return $stdin if tagfile == '-'
+
       File.open(tagfile, "r:#{encoding}")
     end
 
@@ -72,6 +74,7 @@ module Tgrep
       dir = Dir.pwd
       until File.file?("#{dir}/tags")
         return nil if File.dirname(dir) == dir
+
         dir = File.dirname(dir)
       end
       "#{dir}/tags"

@@ -25,6 +25,7 @@ module Tgrep
     def parse(args)
       return usage if args.delete('-h') || args.delete('--help')
       return version if args.delete('--version')
+
       args = ArgsNormalizer.new(options_from_file + args).normalize(&@block)
       parsed = Parser.new(args, &@block).parsed
       new(parsed)
@@ -45,6 +46,7 @@ module Tgrep
     def options_from_file
       options_filename = find_options_filename
       return [] if options_filename.nil?
+
       File.readlines(options_filename).map { |l| l.delete("\n\r") }
     end
 
@@ -52,6 +54,7 @@ module Tgrep
       dir = Dir.pwd
       until File.file?("#{dir}/#{@options_filename}")
         break if File.dirname(dir) == dir
+
         dir = File.dirname(dir)
       end
       filename = "#{dir}/#{@options_filename}"
@@ -70,13 +73,16 @@ module Tgrep
       def pos(name, _type = nil, optional: false)
         return if @parse_state != :positional
         return unless @parsed[name].nil?
+
         @parsed[name] = @args.delete_at(0)
         return if optional || @parsed[name]
+
         raise Error, "missing argument - #{name}"
       end
 
       def opt(short_option = nil, name, _help)
         return if @parse_state != :options
+
         options = [_long_option(name)]
         options << "-#{short_option}" if short_option
         if name.to_s.start_with?('no_')
@@ -95,10 +101,12 @@ module Tgrep
 
       def arg(short = nil, long, _type, _help, name: "#{long}s".to_sym)
         return if @parse_state != :options
+
         @parsed[name] ||= []
         options = [_long_option(long)]
         options << "-#{short}" if short
         return unless options.include?(@args[@offset])
+
         @args.delete_at(@offset)
         @parsed[name] << @args[@offset]
         @args.delete_at(@offset)
@@ -106,6 +114,7 @@ module Tgrep
 
       def parsed
         return @parsed unless @parsed.empty?
+
         parse
         @parse_state = :positional
         instance_exec(&@block) if @args.empty?
@@ -152,6 +161,7 @@ module Tgrep
       def _options(short_option, name)
         long_option = "--#{name.to_s.tr('_', '-')}"
         return long_option if short_option.nil?
+
         "-#{short_option}, #{long_option}"
       end
 
@@ -190,9 +200,11 @@ module Tgrep
 
       def opt(short_option = nil, _name, _help)
         return if short_option.nil?
+
         option = "-#{short_option}"
         return if @args[@offset] == option
         return unless @args[@offset].start_with?(option)
+
         @args[@offset] = "-#{@args[@offset][2..-1]}"
         @args.insert(@offset, option)
         @offset += 1
@@ -219,6 +231,7 @@ module Tgrep
         option = "-#{short_option}"
         return if @args[@offset] == option
         return unless @args[@offset].start_with?(option)
+
         @args[@offset] = @args[@offset][2..-1]
         @args.insert(@offset, option)
         @offset += 1
@@ -228,6 +241,7 @@ module Tgrep
         option = _long_option(long_option)
         return if @args[@offset] == option
         return unless @args[@offset].start_with?("#{option}=")
+
         _, value = @args[@offset].split('=', 2)
         @args[@offset] = value
         @args.insert(@offset, option)

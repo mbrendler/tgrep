@@ -37,6 +37,7 @@ module Tgrep
       return line == pattern if start_pattern? && end_pattern?
       return line.start_with?(pattern) if start_pattern?
       return line.end_with?(pattern) if end_pattern?
+
       line.include?(pattern)
     end
 
@@ -46,6 +47,7 @@ module Tgrep
         if class_name && !name.start_with?(class_name)
           return "#{class_name}::#{identifier}"
         end
+
         identifier
       end
     end
@@ -57,6 +59,7 @@ module Tgrep
     def <=>(other)
       kind_cmp = kind_index - other.kind_index
       return kind_cmp unless kind_cmp.zero?
+
       (line_numbers[0] || 0).to_i - (other.line_numbers[0] || 0).to_i
     end
 

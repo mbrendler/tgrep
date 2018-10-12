@@ -16,6 +16,7 @@ module Tgrep
       return self if @tags[tag.identifier].any? do |t|
         t.filename == tag.filename && t.pattern == tag.pattern
       end
+
       @tags[tag.identifier] << tag
       self
     end
@@ -37,6 +38,7 @@ module Tgrep
 
     def each
       return to_enum(__method__) unless block_given?
+
       @tags.each_value(&proc)
     end
 
@@ -52,6 +54,7 @@ module Tgrep
         line.delete!("\n\r")
         tags.each do |tag|
           next unless tag.match?(line)
+
           line_numbers[tag] << [class_name, i]
         end
       end
@@ -63,6 +66,7 @@ module Tgrep
     def forward_line_numbers_to_tags(line_numbers)
       line_numbers.each do |tag, nrs|
         next if nrs.empty?
+
         if tag.class_name
           nrs1 = nrs.find_all { |klass, _| tag.class_name.end_with?(klass) }
           nrs = nrs1 unless nrs1.empty?
