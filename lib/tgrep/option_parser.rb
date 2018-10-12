@@ -174,7 +174,7 @@ module Tgrep
         out.puts
         out.puts("All options can be written into a '#{@options_filename}'.")
         out.puts(
-          'This file is searched in the current directory and all its parrents.'
+          'This file is searched in the current directory and all its parents.'
         )
       end
 

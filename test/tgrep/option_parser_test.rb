@@ -132,7 +132,7 @@ class OptionParserTest < Minitest::Test
       --version                 -- show version
 
     All options can be written into a '__options_file__'.
-    This file is searched in the current directory and all its parrents.
+    This file is searched in the current directory and all its parents.
   EXPECTED_USAGE
 
   def test_usage_without_exit_code
