@@ -57,6 +57,7 @@ function! tgrep#open_window(content)
   nnoremap <buffer> <Enter> :call tgrep#open_file('')<CR>
   nnoremap <buffer> <Space> :call tgrep#open_file('close')<CR>
   nnoremap <buffer> <C-t> :call tgrep#open_file('tab')<CR>
+  nnoremap <buffer> t :call tgrep#open_file('tab')<CR>
   1
 endfunction
 
