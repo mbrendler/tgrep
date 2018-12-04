@@ -49,7 +49,7 @@ module Tgrep
     end
 
     def tagfile
-      @args[:tagfile] || find_tagfile
+      @args[:tagfile] ||= find_tagfile
     end
 
     def open_tagfile
