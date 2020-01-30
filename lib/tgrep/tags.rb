@@ -5,7 +5,7 @@ require 'set'
 module Tgrep
   class Tags
     def initialize
-      @tags ||= Hash.new { |h, k| h[k] = [] }
+      @tags = Hash.new { |h, k| h[k] = [] }
     end
 
     def empty?
@@ -36,15 +36,16 @@ module Tgrep
       end
     end
 
-    def each
+    def each(&block)
       return to_enum(__method__) unless block_given?
 
-      @tags.each_value(&proc)
+      @tags.each_value(&block)
     end
 
     private
 
-    RE_CLASS_NAME = /^\s*(class|struct|namespace)\s+([a-zA-Z0-9_]+)[^;]*$/
+    RE_CLASS_NAME =
+      /^\s*(class|struct|namespace)\s+([a-zA-Z0-9_]+)[^;]*$/.freeze
 
     def find_line_numbers(filename, tags, encoding)
       class_name = ''
