@@ -6,7 +6,6 @@ require_relative 'tgrep/tags'
 require_relative 'tgrep/pretty'
 require_relative 'tgrep/vimgrep'
 require_relative 'tgrep/line_handlers'
-require_relative 'tgrep/version'
 
 module Tgrep
   def self.main(args)
