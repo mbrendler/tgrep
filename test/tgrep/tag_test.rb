@@ -3,8 +3,6 @@
 require_relative '../test_helper'
 
 class TagTest < Minitest::Test
-  include MinitestRSpecMocks
-
   MEMBER_TAG = [
     'amember',
     'path/to/file.h',

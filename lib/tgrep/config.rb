@@ -1,13 +1,10 @@
 # frozen_string_literal: true
 
 require_relative 'option_parser'
-require_relative 'version'
 
 module Tgrep
   class Config
     extend OptionParser
-
-    version Tgrep::VERSION
 
     options_filename '.tgrep'
 
@@ -23,6 +20,7 @@ module Tgrep
       arg('f', :file_pattern, 'FILE_RE_PATTERN', 'shrink the output by file')
       arg(:encoding, 'ENCODING', 'encoding used to parse files (UTF-8)')
       opt(:vimgrep, 'output in vimgrep format')
+      opt(:qf, 'open in quickfix')
       pos(:tag)
       pos(:tagfile, optional: true)
     end

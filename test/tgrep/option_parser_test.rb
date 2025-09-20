@@ -5,8 +5,6 @@ require_relative '../test_helper'
 TestConfig = Struct.new(:args) do
   extend Tgrep::OptionParser
 
-  version 'a-version'
-
   options_filename '__options_file__'
 
   options do
@@ -20,11 +18,35 @@ TestConfig = Struct.new(:args) do
     arg(:only_long_arg, 'TYPE', 'help about only-long-arg')
     arg('a', :with_short_arg, 'TYPE', 'help about with-short-arg')
   end
+
+  # The following configurations are for testability only:
+
+  def self.output_string_io
+    @output_string_io ||= StringIO.new
+  end
+  output output_string_io
+
+  def self.exit_calls
+    @exit_calls ||= []
+  end
+  exit_block { |code| exit_calls << code }
 end
 
-class OptionParserTest < Minitest::Test
-  include MinitestRSpecMocks
+EXPECTED_USAGE = <<~EXPECTED_USAGE
+  #{$PROGRAM_NAME} [OPTIONS] ARG1 [ARG2]
 
+    --only-long-opt           -- help about only-long-opt
+    --no-only-long-opt        -- disables --only-long-opt
+    -s, --with-short-opt      -- help about with_short_opt
+    --only-long-arg TYPE      -- help about only-long-arg
+    -a, --with-short-arg TYPE -- help about with-short-arg
+    -h, --help                -- show help
+
+  All options can be written into a '__options_file__'.
+  This file is searched in the current directory and all its parents.
+EXPECTED_USAGE
+
+class OptionParserTest < Minitest::Test
   SUBJECT = TestConfig.parse(
     %w[
       --only-long-opt
@@ -38,6 +60,11 @@ class OptionParserTest < Minitest::Test
     ]
   )
 
+  def after_teardown
+    TestConfig.output_string_io.reopen(StringIO.new)
+    TestConfig.exit_calls.clear
+  end
+
   def test_possitional
     assert_equal('foo', SUBJECT.args[:arg1])
     assert_equal('bar', SUBJECT.args[:arg2])
@@ -50,9 +77,12 @@ class OptionParserTest < Minitest::Test
   end
 
   def test_positional_mandatory_is_missing
-    expect(TestConfig).to receive(:usage).with(1)
-    expect(Kernel).to receive(:warn).with('missing argument - arg1')
     TestConfig.parse([])
+    assert_equal(
+      "missing argument - arg1\n#{EXPECTED_USAGE}",
+      TestConfig.output_string_io.string
+    )
+    assert_equal([1], TestConfig.exit_calls)
   end
 
   def test_options
@@ -111,53 +141,26 @@ class OptionParserTest < Minitest::Test
   end
 
   def test_long_help_option
-    expect(TestConfig).to receive(:usage).with(no_args)
     TestConfig.parse(['--help'])
+    assert_equal(EXPECTED_USAGE, TestConfig.output_string_io.string)
+    assert_equal([0], TestConfig.exit_calls)
   end
 
   def test_short_help_option
-    expect(TestConfig).to receive(:usage).with(no_args)
     TestConfig.parse(['-h'])
+    assert_equal(EXPECTED_USAGE, TestConfig.output_string_io.string)
+    assert_equal([0], TestConfig.exit_calls)
   end
 
-  EXPECTED_USAGE = <<~EXPECTED_USAGE
-    #{$PROGRAM_NAME} [OPTIONS] ARG1 [ARG2]
-
-      --only-long-opt           -- help about only-long-opt
-      --no-only-long-opt        -- disables --only-long-opt
-      -s, --with-short-opt      -- help about with_short_opt
-      --only-long-arg TYPE      -- help about only-long-arg
-      -a, --with-short-arg TYPE -- help about with-short-arg
-      -h, --help                -- show help
-      --version                 -- show version
-
-    All options can be written into a '__options_file__'.
-    This file is searched in the current directory and all its parents.
-  EXPECTED_USAGE
-
   def test_usage_without_exit_code
-    expect(TestConfig).to receive(:exit).with(0)
-    out = StringIO.new
-    TestConfig.usage(out: out)
-    assert_equal(EXPECTED_USAGE, out.string)
+    TestConfig.usage
+    assert_equal(EXPECTED_USAGE, TestConfig.output_string_io.string)
+    assert_equal([0], TestConfig.exit_calls)
   end
 
   def test_usage_with_exit_code
-    expect(TestConfig).to receive(:exit).with(123)
-    out = StringIO.new
-    TestConfig.usage(123, out: out)
-    assert_equal(EXPECTED_USAGE, out.string)
-  end
-
-  def test_version_option
-    expect(TestConfig).to receive(:version).with(no_args)
-    TestConfig.parse(['--version'])
-  end
-
-  def test_version
-    expect(TestConfig).to receive(:exit).with(0)
-    out = StringIO.new
-    TestConfig.version(out: out)
-    assert_equal("a-version\n", out.string)
+    TestConfig.usage(123)
+    assert_equal(EXPECTED_USAGE, TestConfig.output_string_io.string)
+    assert_equal([123], TestConfig.exit_calls)
   end
 end

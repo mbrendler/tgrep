@@ -3,6 +3,5 @@
 source 'https://rubygems.org' do
   gem 'minitest'
   gem 'rake'
-  gem 'rspec-mocks'
   gem 'rubocop'
 end

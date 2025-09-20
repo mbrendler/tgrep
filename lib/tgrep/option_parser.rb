@@ -5,6 +5,14 @@ module Tgrep
     class Error < StandardError
     end
 
+    def output(out)
+      @out = out
+    end
+
+    def exit_block(&block)
+      @exit_block = block
+    end
+
     def options_filename(filename)
       @options_filename = filename
     end
@@ -13,35 +21,31 @@ module Tgrep
       @block = block
     end
 
-    def version(version = nil, out: $stdout)
-      if version.nil?
-        out.puts(@version)
-        exit(0)
-      else
-        @version = version
-      end
-    end
-
     def parse(args)
       return usage if args.delete('-h') || args.delete('--help')
-      return version if args.delete('--version')
 
       args = ArgsNormalizer.new(options_from_file + args).normalize(&@block)
       parsed = Parser.new(args, &@block).parsed
       new(parsed)
     rescue Error => e
-      Kernel.warn(e.to_s)
+      out.puts(e.to_s)
       usage(1)
     end
 
-    def usage(exit_code = 0, out: $stdout)
+    def usage(exit_code = 0)
       help = Help.new(@options_filename)
       help.instance_exec(&@block)
       help.print(out)
-      exit(exit_code)
+      exit(exit_code) if @exit_block.nil?
+
+      @exit_block.call(exit_code)
     end
 
     private
+
+    def out
+      @out ||= $stdout
+    end
 
     def options_from_file
       options_filename = find_options_filename
@@ -179,14 +183,7 @@ module Tgrep
       end
 
       def options
-        @options + [
-          ['-h, --help', 'show help'],
-          ['--version', 'show version']
-        ]
-      end
-
-      def print_option(out, option, help)
-        out.puts("  #{option.ljust(max_left)} -- #{help}")
+        @options + [['-h, --help', 'show help']]
       end
     end
 
