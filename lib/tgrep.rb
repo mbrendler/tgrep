@@ -4,6 +4,7 @@ require_relative 'tgrep/config'
 require_relative 'tgrep/tag'
 require_relative 'tgrep/tags'
 require_relative 'tgrep/pretty'
+require_relative 'tgrep/vimgrep'
 require_relative 'tgrep/line_handlers'
 require_relative 'tgrep/version'
 
@@ -14,7 +15,9 @@ module Tgrep
     exit(1) if tags.empty?
     tags.collect_line_numbers(config.encoding)
     tags.sort!
-    tags.each { |tag| Pretty.print(tag, config) }
+
+    printer = config.vimgrep ? Vimgrep : Pretty
+    tags.each { |tag| printer.print(tag, config) }
   end
 
   def self.parse_tagfile(config)
