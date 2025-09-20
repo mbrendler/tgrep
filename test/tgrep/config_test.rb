@@ -72,7 +72,6 @@ class ConfigTest < Minitest::Test
     cd(__dir__) { assert_equal(__dir__, Tgrep::Config.new({}).base_dir) }
   end
 
-  # rubocop:disable Layout/Tab
   def test_matcher
     assert_equal(/^[^	]*a-tag[^	]*	/i, SUBJECT.matcher)
     assert_equal(/^[^	]*a-tag	/i, config(tag: 'a-tag$').matcher)
@@ -84,7 +83,6 @@ class ConfigTest < Minitest::Test
       config(tag: '^a-tag$', case_sensitive: true).matcher
     )
   end
-  # rubocop:enable Layout/Tab
 
   private
 

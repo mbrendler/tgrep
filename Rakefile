@@ -4,7 +4,7 @@ require 'rake/testtask'
 require 'rubocop/rake_task'
 
 Rake::TestTask.new(:test) do |t|
-  ENV['TESTOPTS'] = "#{ENV['TESTOPTS']} #{ARGV.delete('--verbose')}"
+  ENV['TESTOPTS'] = "#{ENV.fetch('TESTOPTS', nil)} #{ARGV.delete('--verbose')}"
   t.warning = true
   t.test_files = FileList['test/**/*_test.rb']
 end

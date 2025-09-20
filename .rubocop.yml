@@ -17,6 +17,7 @@ Style/OptionalArguments:
   Enabled: false
 
 AllCops:
+  NewCops: enable
   DisplayCopNames: true
   DisplayStyleGuide: true
   TargetRubyVersion: 2.5

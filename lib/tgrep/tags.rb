@@ -22,10 +22,10 @@ module Tgrep
     end
 
     def sort!
-      @tags.values.each(&:sort!)
-      @tags = Hash[@tags.sort_by do |_, tags|
+      @tags.each_value(&:sort!)
+      @tags = @tags.sort_by do |_, tags|
         [tags[0].class_name || '', tags[0].line_numbers[0] || 0]
-      end]
+      end.to_h
     end
 
     def collect_line_numbers(encoding = 'utf-8')
@@ -46,6 +46,7 @@ module Tgrep
 
     RE_CLASS_NAME =
       /^\s*(class|struct|namespace)\s+([a-zA-Z0-9_]+)[^;]*$/.freeze
+    private_constant :RE_CLASS_NAME
 
     def find_line_numbers(filename, tags, encoding)
       class_name = ''
@@ -72,7 +73,7 @@ module Tgrep
           nrs1 = nrs.find_all { |klass, _| tag.class_name.end_with?(klass) }
           nrs = nrs1 unless nrs1.empty?
         end
-        nrs.each { |_, nr| tag.line_numbers << nr }
+        nrs.each { |(_, nr)| tag.line_numbers << nr }
       end
     end
   end

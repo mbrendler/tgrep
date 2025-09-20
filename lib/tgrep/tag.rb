@@ -45,10 +45,10 @@ module Tgrep
       @identifier ||= begin
         identifier = "#{name}#{simple_signature}"
         if class_name && !name.start_with?(class_name)
-          return "#{class_name}::#{identifier}"
+          "#{class_name}::#{identifier}"
+        else
+          identifier
         end
-
-        identifier
       end
     end
 
@@ -82,7 +82,7 @@ module Tgrep
       @signature ||= data.fetch(:signature, +'').tap do |sig|
         sig.tr!("\t", ' ')
         sig.gsub!(/ *, */, ', ')
-        sig.gsub!(/  /, ' ')
+        sig.gsub!('  ', ' ')
         sig.gsub!(/ *\( */, '(')
         sig.gsub!(/ *\) */, ')')
         sig.gsub!(/\)const */, ') const')

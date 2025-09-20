@@ -99,7 +99,7 @@ module Tgrep
         end
       end
 
-      def arg(short = nil, long, _type, _help, name: "#{long}s".to_sym)
+      def arg(short = nil, long, _type, _help, name: :"#{long}s")
         return if @parse_state != :options
 
         @parsed[name] ||= []
@@ -196,7 +196,7 @@ module Tgrep
         @offset = 0
       end
 
-      def pos(*___); end
+      def pos(*_kwargs); end
 
       def opt(short_option = nil, _name, _help)
         return if short_option.nil?
